@@ -11,6 +11,8 @@
 	{
 		$expr = $_GET['expr'];
 		
+		// Error checking here...
+
 		// Handle all the multiplications and divisions
 		$multdiv_pattern = '/\-?\d+\.*\d*(\*|\/)\-?\d+\.*\d*/';
 
@@ -41,7 +43,7 @@
 			preg_match($addsub_pattern, $expr, $matches, PREG_OFFSET_CAPTURE);			
 		}
 
-		print($expr);
+		print("Answer: ".$expr);
 
 	}
 ?>
