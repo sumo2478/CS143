@@ -14,36 +14,8 @@
 		// Error checking here...
 
 		// Handle all the multiplications and divisions
-		$multdiv_pattern = '/\-?\d+\.*\d*(\*|\/)\-?\d+\.*\d*/';
+		eval("\$result = $expr;");
 
-		preg_match($multdiv_pattern, $expr, $matches, PREG_OFFSET_CAPTURE);
-
-		while($matches)
-		{
-			$equation = $matches[0][0];
-			eval("\$result = $equation;");
-			$count = 1;
-			$expr = str_replace($matches[0][0], $result,$expr, $count);
-
-			preg_match($multdiv_pattern, $expr, $matches, PREG_OFFSET_CAPTURE);			
-		}
-
-		// Handle addition and subtraction
-		$addsub_pattern = '/\-?\d+\.*\d*(\+|\-)\-?\d+\.*\d*/';
-
-		preg_match($addsub_pattern, $expr, $matches, PREG_OFFSET_CAPTURE);
-
-		while($matches)
-		{
-			$equation = $matches[0][0];
-			eval("\$result = $equation;");
-			$count = 1;
-			$expr = str_replace($matches[0][0], $result,$expr, $count);
-
-			preg_match($addsub_pattern, $expr, $matches, PREG_OFFSET_CAPTURE);			
-		}
-
-		print("Answer: ".$expr);
-
+		print("Answer: ".$result."\n");
 	}
 ?>
