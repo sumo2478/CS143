@@ -10,8 +10,13 @@
 	if ($_GET['expr'])
 	{
 		$expr = $_GET['expr'];
-		
-		// Error checking here...
+
+		// Check for invalid characters
+		$error_expr = '/[^0-9\*\-\+\/]/';
+		if (preg_match($error_expr, $expr)) {
+			print("Error\n");
+			return;
+		}
 
 		// Handle all the multiplications and divisions
 		eval("\$result = $expr;");
