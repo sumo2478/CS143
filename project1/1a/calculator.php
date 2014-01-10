@@ -14,7 +14,7 @@
 		// Check for invalid characters
 		$error_expr = '/[^0-9\*\-\+\/]/';
 		if (preg_match($error_expr, $expr)) {
-			print("Error\n");
+			print("Invalid input: ".$expr."\n");
 			return;
 		}
 
