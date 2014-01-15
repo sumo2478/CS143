@@ -18,10 +18,14 @@
             $expr = str_replace("--", "+", $expr);
 
             // Check for invalid characters
-            $error_expr = '/[^0-9\*\-\+\/\.]/';
-            if (preg_match($error_expr, $expr)) {
+            if (preg_match('/[^0-9\*\-\+\/\.]/', $expr)) {
                     print("Invalid input: ".$expr."\n");
                     return;
+            }
+            // Match for operator and then another operator
+            elseif (preg_match('/(\-|\/|\*|\+)(\/|\*|\+)/', $expr)) {
+                print("Invalid input: ".$expr."\n");
+                return;
             }
 
             $zero = FALSE;
