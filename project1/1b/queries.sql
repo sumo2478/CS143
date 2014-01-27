@@ -6,7 +6,7 @@ USE CS143;
 -- <firstname> <lastname>   (seperated by single space).
 
 SELECT CONCAT(first, ' ', last)
-FROM ACTOR,
+FROM Actor,
 	(
 		SELECT aid
 		FROM MovieActor
@@ -38,5 +38,15 @@ FROM
 		FROM MovieActor
 		GROUP BY aid
 		HAVING COUNT(*) >= 2
-	);
+	) A;
 
+
+-- Custom
+-- Personal query
+-- Display Year Released and Title for a given Genre, "Comedy"
+-- Display in the ascending order of year released
+SELECT year, title
+FROM Actor A, Movie M, MovieActor MA, MovieGenre MG
+WHERE M.id = MA.mid AND A.id = MA.aid AND MG.mid = M.id AND MG.genre = 'Comedy'
+GROUP BY MA.mid
+ORDER BY M.year ASC;
