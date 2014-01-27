@@ -1,4 +1,4 @@
-USE CS143; -- TODO: Change to CS143
+-- USE CS143; -- TODO: Change to CS143
 -- TODO: Might have to add in tuples for MaxMovieId and MaxPersonId
 
 -- Load Movies into Database
