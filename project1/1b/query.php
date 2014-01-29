@@ -1,10 +1,10 @@
 <html>
-<head><title>CLICK ME</title></head>
+<head><title>Query</title></head>
 <body>
 
 <h1> Queries </h1>
 
-<form action="query.php" method="GET">
+<form method="GET">
 <textarea name="query" cols="60" rows="8"></textarea>
 <input type="submit" value="Submit" />
 </form>
