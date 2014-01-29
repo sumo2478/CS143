@@ -10,7 +10,11 @@ Email: aguo91@gmail.com
 
 Movie Database:
 
-create.sql -- script for creating tables for the movie database
-load.sql   -- script for loading data into movie database
+create.sql   -- script for creating tables for the movie database
+load.sql     -- script for loading data into movie database
+queries.sql  -- script that contains three SELECT statements
+query.php    -- PHP code that allows users to issue a SELECT statement
+violate.sql  -- List of SQL modification statements (INSERT/DELETE/UPDATE)
+             -- that violate each constraint
 
 Collin handled the creation of the tables and loading of the data, while Alex worked on the Web Query Interface and the SQL statements. We both worked on the data integrity portion.
