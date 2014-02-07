@@ -61,7 +61,7 @@
 		if ($query != "") {
 		
 			foreach ($actor_results as $actor) {
-				echo "<p>".$actor['first']." ".$actor['last']."</p>";
+				echo "<p><a href=./actor.php?id=".$actor['id'].">".$actor['first']." ".$actor['last']."</a></p>";
 			}
 		}
 	?>
@@ -70,7 +70,7 @@
 	<?php 
 		if ($query != "") {
 			foreach ($movie_results as $movie) {
-				echo "<p>".$movie['title']."</p>";
+				echo "<p><a href=./movie.php?id=".$movie['id'].">".$movie['title']."</a></p>";
 			}
 		}
 	?>
