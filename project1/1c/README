@@ -1,0 +1,19 @@
+CS143 -- Project 1c -- Movie Website
+
+Name: Collin Yen
+SID: 804034634
+Email: collinyen7@gmail.com
+
+Name: Alexander Guo
+SID: 104061305
+Email: aguo91@gmail.com
+
+Movie Website:
+connect.php         -- Convenience script for connecting to database
+home.html 		    -- home page for the movie website with links to search and add information
+search_results.php  -- displays search results for movies and actors
+movie.php           -- Displays movie information
+actor.php 		    -- Displays actor information
+
+Collin handled the creation of the search and browse pages, while Alex worked on 
+the add information pages. We both did the Selenium test scripts on the pages that we wrote
