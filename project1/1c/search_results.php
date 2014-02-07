@@ -13,8 +13,8 @@
 	// his/her first or last name
 	foreach ($words as $word) {
 
-		$actor_sql_query = "SELECT id, first, last FROM Actor WHERE (first = \"$word\")
-		OR (last = \"$word\")";
+		$actor_sql_query = "SELECT id, first, last FROM Actor WHERE (first LIKE \"%$word%\")
+		OR (last LIKE \"%$word%\")";
 
 		$movie_sql_query = "SELECT id, title from Movie WHERE title LIKE \"%$word%\"";
 
@@ -46,7 +46,7 @@
 	<title>Search Results</title>
 </head>
 <body>
-
+	<a href="./home.html">Home</a>
 	<h1>Search Results For: <?php echo stripslashes($query) ?> </h1>
 
 	<p>Search Actor/Movie: </p>

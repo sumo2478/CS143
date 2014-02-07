@@ -1,6 +1,7 @@
 <?php 
 	include "connect.php";
 
+	// Retrieve Actor information
 	$actor_id = mysql_real_escape_string(trim($_GET['id']));
 
 	$actor_query = "SELECT * FROM Actor WHERE id = $actor_id";
@@ -8,6 +9,7 @@
 
 	$actor = mysql_fetch_assoc($actor_query_result);
 
+	// Retrieve Movies That Actor Was in
 	$movie_query = "SELECT M.id, M.title, MovieActor.role FROM Actor A, Movie M, MovieActor
 	WHERE A.id = $actor_id AND MovieActor.aid = $actor_id AND MovieActor.mid = M.id";
 	$movie_query_result = mysql_query($movie_query) or die(mysql_error());
@@ -19,7 +21,9 @@
 	<title><?php echo $actor['first']." ".$actor['last'] ?></title>
 </head>
 <body>
-	<h1><?php echo $actor['first']." ".$actor['last'] ?></h1>
+	<a href="./home.html">Home</a>
+
+	<h1><?php echo "Actor: ".$actor['first']." ".$actor['last'] ?></h1>
 	<h3>-- Basic Info --</h3>
 	<p>Sex: <?php echo $actor['sex'] ?> </p>
 	<p>Birth: <?php echo $actor['dob'] ?> </p>
