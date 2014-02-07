@@ -46,7 +46,7 @@
 	<title>Search Results</title>
 </head>
 <body>
-	<a href="./home.html">Home</a>
+	
 	<h1>Search Results For: <?php echo stripslashes($query) ?> </h1>
 
 	<p>Search Actor/Movie: </p>
