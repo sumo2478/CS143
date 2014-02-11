@@ -10,6 +10,26 @@
 
 		$movie = mysql_fetch_assoc($movie_query_result);
 
+		// Retrieve Genre Information
+		$genre_query = "SELECT genre
+						FROM MovieGenre
+						WHERE mid = $movie_id";
+		$genre_query_result = mysql_query($genre_query) or die(mysql_error());
+
+		while ($genre = mysql_fetch_assoc($genre_query_result)) {
+			$genres[] = $genre['genre'];
+		}
+
+		// Retrieve Director Information
+		$director_query = "SELECT D.first, D.last
+						   FROM MovieDirector M, Director D
+						   WHERE M.mid = $movie_id AND D.id=M.did";
+		$director_query_result = mysql_query($director_query) or die(mysql_error());
+		
+		while ($director = mysql_fetch_assoc($director_query_result)) {
+			$directors[] = $director['first']." ".$director['last'];
+		}
+
 		// Retrieve Actor Information
 		$actor_query = "SELECT A.id, A.last, A.first, MovieActor.role
 						FROM Movie M, Actor A, MovieActor
@@ -43,6 +63,8 @@
  	<p>Year: <?php echo $movie['year'] ?> </p>
  	<p>Rating: <?php echo $movie['rating'] ?></p>
  	<p>Production Company: <?php echo $movie['company'] ?></p>
+ 	<p>Genres: <?php if ($genres) echo implode(', ', $genres) ?></p>
+ 	<p>Directors: <?php if ($directors)echo implode(', ', $directors) ?></p>
  	<p>Average User Score: <?php
 
  								if ($score['score']) {
