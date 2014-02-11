@@ -3,30 +3,32 @@
 
 	// Retrieve Movie information
 	$movie_id = mysql_real_escape_string(trim($_GET['id']));
+	if ($movie_id) {
 
-	$movie_query = "SELECT * FROM Movie WHERE id = $movie_id";
-	$movie_query_result = mysql_query($movie_query) or die(mysql_error());
+		$movie_query = "SELECT * FROM Movie WHERE id = $movie_id";
+		$movie_query_result = mysql_query($movie_query) or die(mysql_error());
 
-	$movie = mysql_fetch_assoc($movie_query_result);
+		$movie = mysql_fetch_assoc($movie_query_result);
 
-	// Retrieve Actor Information
-	$actor_query = "SELECT A.id, A.last, A.first, MovieActor.role
-					FROM Movie M, Actor A, MovieActor
-					WHERE M.id=$movie_id AND M.id=MovieActor.mid AND A.id=MovieActor.aid";
-	$actor_query_result = mysql_query($actor_query) or die(mysql_error());
+		// Retrieve Actor Information
+		$actor_query = "SELECT A.id, A.last, A.first, MovieActor.role
+						FROM Movie M, Actor A, MovieActor
+						WHERE M.id=$movie_id AND M.id=MovieActor.mid AND A.id=MovieActor.aid";
+		$actor_query_result = mysql_query($actor_query) or die(mysql_error());
 
-	// Retrieve Score Information
-	$score_query = "SELECT AVG(R.rating) AS score
-					FROM Movie M, Review R
-					WHERE M.id=$movie_id AND R.mid=$movie_id";
+		// Retrieve Score Information
+		$score_query = "SELECT AVG(R.rating) AS score
+						FROM Movie M, Review R
+						WHERE M.id=$movie_id AND R.mid=$movie_id";
 
-	$score_query_result = mysql_query($score_query) or die(mysql_error());
+		$score_query_result = mysql_query($score_query) or die(mysql_error());
 
-	$score = mysql_fetch_assoc($score_query_result);
+		$score = mysql_fetch_assoc($score_query_result);
 
-	// Retrieve Reviews
-	$review_query = "SELECT * FROM Review WHERE mid=$movie_id";
-	$review_query_result = mysql_query($review_query) or die(mysql_error());
+		// Retrieve Reviews
+		$review_query = "SELECT * FROM Review WHERE mid=$movie_id";
+		$review_query_result = mysql_query($review_query) or die(mysql_error());
+	}
  ?>
 
  <html>
@@ -53,18 +55,22 @@
 
  	<h3>-- Actor Info --</h3>
  	<?php 
- 		while ($actor = mysql_fetch_assoc($actor_query_result)) {
- 			echo "<p><a href=./actor.php?id=".$actor['id'].">".$actor['first']." ".$actor['last']."</a> as ".$actor['role']."</p>";
- 		}
+ 		if ($movie_id) {
+	 		while ($actor = mysql_fetch_assoc($actor_query_result)) {
+	 			echo "<p><a href=./actor.php?id=".$actor['id'].">".$actor['first']." ".$actor['last']."</a> as ".$actor['role']."</p>";
+	 		}
+	 	}
  	?>
 
  	<h3>-- Reviews --</h3>
  	<a href="./add_comment.php?movie_id=<?php echo $movie_id?>">Add Comment</a>
  	<?php 
- 		while ($review = mysql_fetch_assoc($review_query_result)) {
- 			echo "<p>".$review['time']."	".$review['name']."</p>";
- 			echo "<p>Rating: ".$review['rating']."</p>";
- 			echo "<p>Comment: ".$review['comment']."</p>";
+ 		if ($movie_id) {
+	 		while ($review = mysql_fetch_assoc($review_query_result)) {
+	 			echo "<p>".$review['time']."	".$review['name']."</p>";
+	 			echo "<p>Rating: ".$review['rating']."</p>";
+	 			echo "<p>Comment: ".$review['comment']."</p>";
+	 		}
  		}
  	?>
 
