@@ -17,7 +17,7 @@ DROP TABLE Review;
 
 DROP TABLE MaxPersonID;
 
-DROP TABLE MaxMovieId;
+DROP TABLE MaxMovieID;
 
 DROP TABLE Movie;
 

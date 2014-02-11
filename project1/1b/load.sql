@@ -1,5 +1,5 @@
 -- USE CS143; -- TODO: Change to CS143
--- TODO: Might have to add in tuples for MaxMovieId and MaxPersonId
+-- TODO: Might have to add in tuples for MaxMovieID and MaxPersonID
 
 -- Load Movies into Database
 LOAD DATA LOCAL INFILE './data/movie.del' 

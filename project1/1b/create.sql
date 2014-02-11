@@ -80,7 +80,7 @@ CREATE TABLE MaxPersonID
 	id int -- Max ID assigned to all persons
 ) ENGINE = INNODB;
 
-CREATE TABLE MaxMovieId
+CREATE TABLE MaxMovieID
 (
 	id int -- Max ID assigned to all movies
 ) ENGINE = INNODB;
@@ -89,5 +89,5 @@ CREATE TABLE MaxMovieId
 INSERT INTO MaxPersonID values (69000);
 
 -- Insert tuple to MaxMovieId
-INSERT INTO MaxMovieId values (4750);
+INSERT INTO MaxMovieID values (4750);
 
