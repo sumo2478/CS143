@@ -100,7 +100,10 @@ if ($_POST["clicked"] && $_POST["title"] && $_POST["company"] && $_POST["year"] 
 	}
 	mysql_close($db_connection);
 } elseif($_POST["clicked"]) {
-	echo "All Fields are required. Please try again!";
+	if ($_POST["year"] < 0 || !is_numeric($_POST["year"])) {
+		echo "Year must be a positive integer";
+	}else
+		echo "All Fields are required. Please try again!";
 }
 
 	?>
