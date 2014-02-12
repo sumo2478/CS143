@@ -9,11 +9,21 @@ SID: 104061305
 Email: aguo91@gmail.com
 
 Movie Website:
-connect.php         -- Convenience script for connecting to database
-home.html 		    -- home page for the movie website with links to search and add information
-search_results.php  -- displays search results for movies and actors
-movie.php           -- Displays movie information
-actor.php 		    -- Displays actor information
+connect.php          -- Convenience script for connecting to database
+home.html 		     -- Home page for the movie website with links to search and add information
+search_results.php   -- Displays search results for movies and actors
+movie.php            -- Displays movie information
+actor.php 		     -- Displays actor information
+addActor.php         -- Creates an actor or director
+addComment.php       -- Accessed through a movie's page and allows you to add a review for the movie
+addDirectorMovie.php -- Adds a director to a movie
+addMovieActor.php    -- Adds an actor to a movie
+addMovieInfo.php     -- Creates a movie
+
+Improvements:
+- We could improve on the user interface and graphics of the website.
+- In a team, we could have met up more often because there were times when there was a miscommunication about
+  ideas; however, we extensively made use of version control through Git and Github.
 
 Collin handled the creation of the search and browse pages, while Alex worked on 
-the add information pages. We both did the Selenium test scripts on the pages that we wrote
+the add information pages. We both did the Selenium test scripts on the pages that we wrote.
