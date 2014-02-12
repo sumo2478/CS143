@@ -1,6 +1,7 @@
 <html>
 <head><title>Add Movie/Actor Relation</title></head>
 <body>
+<a href="./home.html">Home</a>
 <p>
 Search a movie: <br/>
 <form method="POST">

@@ -2,6 +2,7 @@
 <head>
 	<title>Add Movie Information</title>
 </head>
+<a href="./home.html">Home</a>
 <form method="post">
 <h3>Add a new movie: </h3>
 <p><b>Title: </b><input type="text" name="title" maxlength="20"/><br/></p>

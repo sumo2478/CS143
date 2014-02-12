@@ -2,7 +2,7 @@
 <head><title>Add Comment</title></head>
 <body>
 
-
+<a href="./home.html">Home</a>
 
 <?php
 
