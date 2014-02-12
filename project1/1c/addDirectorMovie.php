@@ -10,10 +10,10 @@ Search a movie: <br/>
 </form> 
 </p>
 <p>
-Search an actor: <br/>
+Search a director: <br/>
 <form method="POST">
 <input type="text" name="sdirector"/>
-<input type="hidden" name="but" value="act"/>
+<input type="hidden" name="but" value="director"/>
 <input type="submit" value="Search Director"/>
 </form>
 </p>
@@ -129,9 +129,9 @@ if($_POST["smovie"] && ($_POST["but"] == "mov")) {
 	mysql_close($db_connection);
 }
 ?>
-<!-- Handle when User searches for Actor -->
+<!-- Handle when User searches for Director -->
 <?php
-if($_POST["sdirector"] && ($_POST["but"] == "act")){
+if($_POST["sdirector"] && ($_POST["but"] == "direct")){
 	
 	$searchDirectorRaw = $_POST["sdirector"];
 	$formattedSearch = preg_replace('/\s+/', ' ', $searchDirectorRaw); 
