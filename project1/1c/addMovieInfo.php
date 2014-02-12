@@ -2,13 +2,12 @@
 <head>
 	<title>Add Movie Information</title>
 </head>
-<a href="./home.html">Home</a>
 <form method="post">
 <h3>Add a new movie: </h3>
 <p><b>Title: </b><input type="text" name="title" maxlength="20"/><br/></p>
 <p><b>Year (YYYY): </b><input type="text" name="year" maxlength="20"/><br/></p>
 <p><b>Company: </b><input type="text" name="company" maxlength="20"/><br/></p>
-<!--<p><b>Director: </b><input type="text" name="director" maxlength="20"/><br/></p> -->
+
 <p>MPAA Rating: 
 <select name="MPAA">
 <option value="G">G</option>
@@ -46,7 +45,8 @@
 </form>
 
 <?php
-if ($_POST["title"] && $_POST["company"] && $_POST["year"] && $_POST["MPAA"] && is_numeric($_POST["year"]) && $_POST["year"] >= 0){
+
+if ($_POST["clicked"] && $_POST["title"] && $_POST["company"] && $_POST["year"] && $_POST["MPAA"] && is_numeric($_POST["year"]) && $_POST["year"] >= 0) {
 	
 	$title = $_POST["title"];
 	$company = $_POST["company"];
@@ -99,6 +99,8 @@ if ($_POST["title"] && $_POST["company"] && $_POST["year"] && $_POST["MPAA"] && 
 		mysql_query($success, $db_connection);
 	}
 	mysql_close($db_connection);
+} elseif($_POST["clicked"]) {
+	echo "All Fields are required. Please try again!";
 }
 
 	?>
