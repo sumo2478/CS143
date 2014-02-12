@@ -117,9 +117,9 @@
 		$insertActor =  "INSERT INTO Actor VALUES ($pid, '$last', '$first', '$sex', '$dob', NULL)";
 
 	if($isDead)
-		$insertDirector = "INSERT INTO Director VALUES ($pid, '$last', '$first', '$sex', '$dob', '$dod')";
+		$insertDirector = "INSERT INTO Director VALUES ($pid, '$last', '$first', '$dob', '$dod')";
 	else
-		$insertDirector = "INSERT INTO Director VALUES ($pid, '$last', '$first', '$sex', '$dob', NULL)";
+		$insertDirector = "INSERT INTO Director VALUES ($pid, '$last', '$first', '$dob', NULL)";
 
 	if(strcmp($job, "actor") == 0) {
 		if(mysql_query($insertActor, $db_connection)) {
@@ -129,6 +129,7 @@
 		}
 		else
 			echo "unsuccessful addition of Actor";
+		
 	}
 	if(strcmp($job, "director") == 0) {
 		if(mysql_query($insertDirector, $db_connection)) {

@@ -46,7 +46,7 @@
 </form>
 
 <?php
-if ($_POST["title"] && $_POST["company"] && $_POST["year"] && $_POST["MPAA"] && is_numeric($_POST["year"])){
+if ($_POST["title"] && $_POST["company"] && $_POST["year"] && $_POST["MPAA"] && is_numeric($_POST["year"]) && $_POST["year"] >= 0){
 	
 	$title = $_POST["title"];
 	$company = $_POST["company"];

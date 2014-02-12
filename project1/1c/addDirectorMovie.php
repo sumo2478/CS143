@@ -6,7 +6,6 @@
 Search a movie: <br/>
 <form method="POST">
 <input type="text" name="smovie"/>
-<input type="hidden" name="but" value="mov"/>
 <input type="submit" value="Search Movies"/>
 </form> 
 </p>
@@ -14,7 +13,6 @@ Search a movie: <br/>
 Search a director: <br/>
 <form method="POST">
 <input type="text" name="sdirector"/>
-<input type="hidden" name="but" value="director"/>
 <input type="submit" value="Search Director"/>
 </form>
 </p>
@@ -76,7 +74,7 @@ if ($_POST["select"] == "addDirectorToMovie"){
 
 
 <?php
-if($_POST["smovie"] && ($_POST["but"] == "mov")) {
+if($_POST["smovie"]) {
 	$searchMovieRaw = $_POST["smovie"];
 	$formattedSearch = preg_replace('/\s+/', ' ', $searchMovieRaw); 
 	$words = explode(" ", $formattedSearch);
@@ -132,7 +130,7 @@ if($_POST["smovie"] && ($_POST["but"] == "mov")) {
 ?>
 <!-- Handle when User searches for Director -->
 <?php
-if($_POST["sdirector"] && ($_POST["but"] == "direct")){
+if($_POST["sdirector"]){
 	
 	$searchDirectorRaw = $_POST["sdirector"];
 	$formattedSearch = preg_replace('/\s+/', ' ', $searchDirectorRaw); 
