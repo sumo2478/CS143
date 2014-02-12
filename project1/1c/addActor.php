@@ -2,7 +2,7 @@
 <head>
 	<title>Add Actor or Director</title>
 </head>
-
+<a href="./home.html">Home</a>
 <p>
 	<form method="post">
 	
