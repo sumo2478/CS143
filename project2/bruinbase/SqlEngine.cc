@@ -148,25 +148,15 @@ RC SqlEngine::load(const string& table, const string& loadfile, bool index)
     // Enter each key value pair into the table
     while (getline(infile, line))
     {
-      stringstream ss(line);
-
-      string key;
+      int key;
       string value;
 
-      getline(ss, key, ',');
-      getline(ss, value, ',');
+      if (parseLoadLine(line, key, value) == 0)
+      {
+        RecordId rd = record_file.endRid();
 
-      // Convert the key to an integer
-      istringstream converter(key);
-      int k;
-      converter >> k;
-
-      // Remove quotations from value
-      value = value.substr(1, value.length()-2);
-
-      RecordId rd = record_file.endRid();
-
-      record_file.append(k, value, rd);
+        record_file.append(key, value, rd);
+      }
     }
   }
 
