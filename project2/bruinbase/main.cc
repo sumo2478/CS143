@@ -9,11 +9,22 @@
  
 #include "Bruinbase.h"
 #include "SqlEngine.h"
+ #include "BTreeNode.h"
+
+#include <iostream>
+ using namespace std;
+
+void test_function()
+{
+	BTLeafNode b1(102);
+  cout << "Count: " << b1.getKeyCount() << endl;
+}
 
 int main()
 {
   // run the SQL engine taking user commands from standard input (console).
-  SqlEngine::run(stdin);
+  // SqlEngine::run(stdin);
+	test_function();
 
   return 0;
 }
