@@ -75,7 +75,7 @@ class PageFile {
    * @return the total # of disk writes
    */
   static int getPageWriteCount() { return writeCount; }
-
+  RC seek(PageId pid) const;
  protected:
   /**
    * move the file cursor to the beginning of a page.
@@ -83,7 +83,7 @@ class PageFile {
    * @param pid[IN] page to seek to
    * @return error code. 0 if no error
    */
-  RC seek(PageId pid) const;
+  
 
  private:
   int     fd;     // file descriptor of the associated unix file

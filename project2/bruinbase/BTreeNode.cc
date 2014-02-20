@@ -1,10 +1,18 @@
 #include "BTreeNode.h"
+#include <iostream>
+
 
 using namespace std;
+
 
 //============================================================================
 // BTNode Implementation
 //============================================================================
+BTNode::BTNode()
+{
+	m_keycount = 0;
+}
+
 /*
  * Return the number of keys stored in the node.
  * @return the number of keys in the node
@@ -23,6 +31,25 @@ int BTNode::getKeyCount()
 RC BTNode::read(PageId pid, const PageFile& pf)
 {
 	RC err = pf.read(pid, buffer);
+
+	int num_entries = 0;
+
+	// Determine the number of keys in the node
+	for (int i = 0; i < RECORDS_PER_PAGE; i++)
+	{
+
+		RecordId rid;
+		int key;
+		readLeafEntry(i, key, rid);
+
+		if (rid.pid == -1 && rid.sid == -1 && key == -1)
+			break;
+
+		num_entries++;
+	}
+
+	m_keycount = num_entries;
+
 	return err;
 }
 
@@ -38,9 +65,41 @@ RC BTNode::write(PageId pid, PageFile& pf)
 	return err;
 }
 
+/**
+* Looks up an entry and returns its key and rid
+* @param eid[IN]  the entry number to read from
+* @param key[OUT] the key from the slot
+* @param rid[OUT] the recordid entry 
+* @return 0 if successful. Return an error code if there is an error
+*/
+RC BTNode::readLeafEntry(int eid, int& key, RecordId& rid)
+{
+	if (eid > RECORDS_PER_PAGE)
+		return RC_NO_SUCH_RECORD;
+
+	int* p = (int*) buffer;
+	p = p + (eid*RECORD_VALUE);
+
+	key = *p;
+	rid.pid = *(p + sizeof(int));
+	rid.sid = *(p + 2*sizeof(int));
+	return 0;
+}
+
+
 //============================================================================
 // BTLeafNode Implementation
 //============================================================================
+
+/**
+* Creates a new BTLeaf Node
+* @return 0 if successful.
+*/
+RC BTLeafNode::create()
+{
+		memset(buffer, -1, sizeof(buffer));
+		m_keycount = 0;
+}
 
 /*
  * Insert a (key, rid) pair to the node.
@@ -49,7 +108,19 @@ RC BTNode::write(PageId pid, PageFile& pf)
  * @return 0 if successful. Return an error code if the node is full.
  */
 RC BTLeafNode::insert(int key, const RecordId& rid)
-{ return 0; }
+{ 
+	// Check to make sure there is space in the node
+	if (!incrementKey())
+		return RC_NODE_FULL;
+
+	int* p = (int*) buffer;
+	p = p + ((m_keycount-1)*RECORD_VALUE);
+	*p = key;
+	*(p + 1*sizeof(int)) = rid.pid;
+	*(p + 2*sizeof(int)) = rid.sid;
+
+	return 0; 
+}
 
 /*
  * Insert the (key, rid) pair to the node
@@ -74,7 +145,25 @@ RC BTLeafNode::insertAndSplit(int key, const RecordId& rid,
  * @return 0 if successful. Return an error code if there is an error.
  */
 RC BTLeafNode::locate(int searchKey, int& eid)
-{ return 0; }
+{ 
+	int err;
+
+	// TODO: Change to binary search?
+	for (int i = 0; i < m_keycount; i++)
+	{
+		int key = -1;
+		RecordId rid;
+		err = readEntry(i, key, rid);
+
+		if (key >= searchKey)
+		{
+			eid = i;
+			return err;
+		}
+	}
+
+	return RC_NO_SUCH_RECORD; 
+}
 
 /*
  * Read the (key, rid) pair from the eid entry.
@@ -84,7 +173,9 @@ RC BTLeafNode::locate(int searchKey, int& eid)
  * @return 0 if successful. Return an error code if there is an error.
  */
 RC BTLeafNode::readEntry(int eid, int& key, RecordId& rid)
-{ return 0; }
+{ 
+	return BTNode::readLeafEntry(eid, key, rid);
+}
 
 /*
  * Return the pid of the next slibling node.
@@ -100,6 +191,17 @@ PageId BTLeafNode::getNextNodePtr()
  */
 RC BTLeafNode::setNextNodePtr(PageId pid)
 { return 0; }
+
+bool BTLeafNode::incrementKey()
+{
+	if(m_keycount < RECORDS_PER_PAGE)
+	{
+		m_keycount++;
+		return true;
+	}
+	else
+		return false;
+}
 
 //============================================================================
 // BTNonLeafNode Implementation

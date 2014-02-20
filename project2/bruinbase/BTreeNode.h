@@ -12,11 +12,14 @@
 
 #include "RecordFile.h"
 #include "PageFile.h"
+#include "Bruinbase.h"
 /**
  * BTNode: The base class representing a B+tree node
  */
 class BTNode {
   public:
+    BTNode();
+
     /**
     * Insert the (key, rid) pair to the node.
     * Remember that all keys inside a B+tree node should be kept sorted.
@@ -47,14 +50,30 @@ class BTNode {
     * @return 0 if successful. Return an error code if there is an error.
     */
     RC write(PageId pid, PageFile& pf);
+    
 
-  private:
+  protected:
+    /**
+    * Looks up an entry and returns its key and rid
+    * @param eid[IN]  the entry number to read from
+    * @param key[OUT] the key from the slot
+    * @param rid[OUT] the recordid entry 
+    * @return 0 if successful. Return an error code if there is an error
+    */
+    RC readLeafEntry(int eid, int& key, RecordId& rid);
+
     /**
     * The main memory buffer for loading the content of the disk page 
     * that contains the node.
     */
     char buffer[PageFile::PAGE_SIZE];
+
+    static const int RECORD_VALUE = sizeof(int) + sizeof(RecordId);
+    static const int RECORDS_PER_PAGE = (PageFile::PAGE_SIZE - sizeof(int)) / RECORD_VALUE;
+
     int m_keycount;
+  private:
+
 
 };
 
@@ -62,9 +81,16 @@ class BTNode {
 /**
  * BTLeafNode: The class representing a B+tree leaf node.
  */
-class BTLeafNode:BTNode {
+class BTLeafNode: public BTNode {
   public:
-   /**
+
+    /**
+    * Creates a new BTLeaf Node
+    * @return 0 if successful.
+    */
+    RC create();
+
+    /**
     * Insert the (key, rid) pair to the node.
     * Remember that all keys inside a B+tree node should be kept sorted.
     * @param key[IN] the key to insert
@@ -73,7 +99,7 @@ class BTLeafNode:BTNode {
     */
     RC insert(int key, const RecordId& rid);
 
-   /**
+    /**
     * Insert the (key, rid) pair to the node
     * and split the node half and half with sibling.
     * The first key of the sibling node is returned in siblingKey.
@@ -120,13 +146,21 @@ class BTLeafNode:BTNode {
     */
     RC setNextNodePtr(PageId pid);
 
+  private:
+    /**
+    * Compares the current key count with the maximum number of records a
+    * a page can hold and increments key count if possible
+    * @return true if key was incremented. False otherwise
+    */
+    bool incrementKey(); 
+
 }; 
 
 
 /**
  * BTNonLeafNode: The class representing a B+tree nonleaf node.
  */
-class BTNonLeafNode:BTNode {
+class BTNonLeafNode: public BTNode {
   public:
    /**
     * Insert a (key, pid) pair to the node.
