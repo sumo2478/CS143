@@ -17,9 +17,6 @@
  */
 class BTNode {
   public:
-
-    BTNode(PageId pid);
-
     /**
     * Insert the (key, rid) pair to the node.
     * Remember that all keys inside a B+tree node should be kept sorted.
@@ -57,8 +54,7 @@ class BTNode {
     * that contains the node.
     */
     char buffer[PageFile::PAGE_SIZE];
-    int m_keycount;  // The number of keys currently in the node
-    PageId m_pid;    // The page id that corresponds to the node
+    int m_keycount;
 
 };
 
@@ -66,11 +62,8 @@ class BTNode {
 /**
  * BTLeafNode: The class representing a B+tree leaf node.
  */
-class BTLeafNode: public BTNode {
+class BTLeafNode:BTNode {
   public:
-
-    BTLeafNode(PageId pid);
-
    /**
     * Insert the (key, rid) pair to the node.
     * Remember that all keys inside a B+tree node should be kept sorted.
@@ -133,7 +126,7 @@ class BTLeafNode: public BTNode {
 /**
  * BTNonLeafNode: The class representing a B+tree nonleaf node.
  */
-class BTNonLeafNode: public BTNode {
+class BTNonLeafNode:BTNode {
   public:
    /**
     * Insert a (key, pid) pair to the node.

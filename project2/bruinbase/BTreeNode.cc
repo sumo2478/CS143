@@ -5,12 +5,6 @@ using namespace std;
 //============================================================================
 // BTNode Implementation
 //============================================================================
-BTNode::BTNode(PageId pid)
-{
-	m_pid = pid;
-	m_keycount = 0;
-}
-
 /*
  * Return the number of keys stored in the node.
  * @return the number of keys in the node
@@ -47,15 +41,6 @@ RC BTNode::write(PageId pid, PageFile& pf)
 //============================================================================
 // BTLeafNode Implementation
 //============================================================================
-
-/*
- * BTLeaf Node Constructor
-*/
-BTLeafNode::BTLeafNode(PageId pid)
-: BTNode(pid)
-{
-
-}
 
 /*
  * Insert a (key, rid) pair to the node.
