@@ -88,8 +88,33 @@ void test_function()
 	eid = -1;
 	b2.locate(11, eid);
 	assert(eid == 1);
+	
+	// Test insert out of order
+	RecordId rid3;
+	rid3.pid = 233;
+	rid3.sid = 111;
+	b2.insert(15, rid3);
 
+	b2.insert(16,rid3);
+	b2.insert(17,rid3);
 
+	rid3.pid = 777;
+	rid3.sid = 333;
+	b2.insert(7, rid3);
+	eid = -1;
+	b2.locate(7, eid);
+
+	assert(eid == 1);
+
+	rid3.pid = 5;
+	rid3.sid = 8;
+	b2.insert(4, rid3);
+	eid = -1;
+	b2.locate(2, eid);
+	
+	assert(eid == 0);
+
+ // [4,5,7,12,15,16,17]
 
 	cout << "\nAll tests passed successfully!\n\n";
 }

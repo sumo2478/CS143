@@ -86,6 +86,24 @@ RC BTNode::readLeafEntry(int eid, int& key, RecordId& rid)
 	return 0;
 }
 
+//TODO: REMOVE
+
+void BTNode::printBuffer()
+{
+	cout << "Print Buffer ===================================\n";
+	
+	for (int i = 0; i < m_keycount; i++)
+	{
+		int* p = (int*) buffer;
+		p = p + (i*RECORD_VALUE);
+
+		cout << "[" << *p << "]";
+		cout << "[" << *(p + sizeof(int)) << "]";
+		cout << "[" << *(p + 2*sizeof(int)) << "]\n";
+	}
+	cout << "End Buffer =====================================\n";
+}
+
 
 //============================================================================
 // BTLeafNode Implementation
@@ -101,6 +119,22 @@ RC BTLeafNode::create()
 		m_keycount = 0;
 }
 
+/**
+ * Inserts a (key, rid) pair to the memory for the node
+ * @param key[IN] the key to insert
+ * @param rid[IN] the RecordId to insert
+ * @param offset[IN] the eid position to insert the node into
+ * @return void
+ */
+void BTLeafNode::insertNode(int key, const RecordId& rid, int offset)
+{
+	int* p = (int*) buffer;
+	p = p + (offset*RECORD_VALUE);
+	*p = key;
+	*(p + 1*sizeof(int)) = rid.pid;
+	*(p + 2*sizeof(int)) = rid.sid;
+}
+
 /*
  * Insert a (key, rid) pair to the node.
  * @param key[IN] the key to insert
@@ -113,11 +147,37 @@ RC BTLeafNode::insert(int key, const RecordId& rid)
 	if (!incrementKey())
 		return RC_NODE_FULL;
 
-	int* p = (int*) buffer;
-	p = p + ((m_keycount-1)*RECORD_VALUE);
-	*p = key;
-	*(p + 1*sizeof(int)) = rid.pid;
-	*(p + 2*sizeof(int)) = rid.sid;
+	int eid = -1;
+	int status = locate(key, eid);
+
+	// If the status is the error no such record then append pair to the end
+	// Otherwise return status code error
+	if (status < 0)
+	{
+		if (status == RC_NO_SUCH_RECORD)
+			eid = m_keycount-1;
+		else
+			return status;
+	}
+
+	// TODO: Move to helper function if insert and split needs it?
+	// Move all pairs past the insert position one record over
+	// Determine the number of records to move ove
+	int num_records = m_keycount - eid;
+	for (int i = num_records; i > eid-1 ; i--)
+	{
+		// Extract values from this record
+		int key = -1;
+		RecordId rid;
+		if ((status = readEntry(i, key, rid)) < 0)
+			return status;
+
+		// Insert the values into the correct position
+		insertNode(key, rid, i + 1);
+	}
+
+	// Insert the new value into the correct position
+	insertNode(key, rid, eid);
 
 	return 0; 
 }

@@ -51,7 +51,8 @@ class BTNode {
     */
     RC write(PageId pid, PageFile& pf);
     
-
+    // TODO: Remove
+    void printBuffer(); // Prints the contents of the buffer for testing
   protected:
     /**
     * Looks up an entry and returns its key and rid
@@ -72,6 +73,8 @@ class BTNode {
     static const int RECORDS_PER_PAGE = (PageFile::PAGE_SIZE - sizeof(int)) / RECORD_VALUE;
 
     int m_keycount;
+
+
   private:
 
 
@@ -153,6 +156,15 @@ class BTLeafNode: public BTNode {
     * @return true if key was incremented. False otherwise
     */
     bool incrementKey(); 
+
+    /**
+     * Inserts a (key, rid) pair to the memory for the node
+     * @param key[IN] the key to insert
+     * @param rid[IN] the RecordId to insert
+     * @param offset[IN] the eid position to insert the node into
+     * @return void
+     */
+    void insertNode(int key, const RecordId& rid, int offset);
 
 }; 
 
