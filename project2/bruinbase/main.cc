@@ -165,6 +165,7 @@ void test_insert_and_split()
 {
 	BTLeafNode b;
 	b.create();
+	b.setNextNodePtr(777);
 
 	int counter = 0;
 	RecordId rid;
@@ -174,9 +175,6 @@ void test_insert_and_split()
 	while (b.insert(counter, rid) == 0)
 		counter+=2;
 
-	cout << "Before: " << endl;
-	b.printBuffer();
-
 	BTLeafNode sibling;
 	sibling.create();
 	int sibling_key = -1;
@@ -185,14 +183,22 @@ void test_insert_and_split()
 	rid2.pid = 33;
 	rid2.sid = 11;
 	b.insertAndSplit(7, rid2, sibling, sibling_key);
-	//b.insert(7, rid2);
 
-	cout << "B: " << endl;
-	b.printBuffer();
-	cout << "Sibling: " << endl;
-	sibling.printBuffer();
+	// Check the sibling_key
+	assert(sibling_key == 84);
 
-	cout << "Key: " << sibling_key << endl;
+	int key = -1;
+	b.readEntry(0, key, rid);
+	assert(key == 0 && rid.pid == 10 && rid.sid == 20);
+	b.readEntry(42, key, rid);
+	assert(key == 82);
+	b.readEntry(4, key, rid);
+	assert(key == 7);
+
+	// Assert that the next pointer was set
+	assert(sibling.getNextNodePtr() == 777);
+
+	cout << "Insert and split test passed...\n";
 }
 
 void test_substitute_insertion()
@@ -222,11 +228,11 @@ void test_function()
 {
 	cout << endl;
 
-	 // test_insertion();
+	 test_insertion();
 
-	//test_substitute_insertion();
+	test_substitute_insertion();
 
-	// test_sibling_node();
+	test_sibling_node();
 
 	test_insert_and_split();
 

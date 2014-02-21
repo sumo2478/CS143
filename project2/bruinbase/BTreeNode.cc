@@ -238,10 +238,13 @@ RC BTLeafNode::insertAndSplit(int key, const RecordId& rid,
 
 	// Insert the record into the left leaf node if the value is less than 
 	// The left most right node
-	// if (key < siblingKey)
-	// 	insert(key, rid);
-	// else
-	// 	sibling.insert(key, rid);
+	if (key < siblingKey)
+		insert(key, rid);
+	else
+		sibling.insert(key, rid);
+
+	// Set the new set next pointer
+	sibling.setNextNodePtr(getNextNodePtr());
 
 	return 0; 
 }

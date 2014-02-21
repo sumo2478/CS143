@@ -71,7 +71,7 @@ class BTNode {
     //char buffer[124];
 
     static const int RECORD_VALUE = sizeof(int) + sizeof(RecordId);
-     static const int RECORDS_PER_PAGE = (PageFile::PAGE_SIZE - sizeof(PageId)) / RECORD_VALUE;
+    static const int RECORDS_PER_PAGE = (PageFile::PAGE_SIZE - sizeof(PageId)) / RECORD_VALUE;
    // static const int RECORDS_PER_PAGE = (124 - sizeof(PageId)) / RECORD_VALUE;
 
     int m_keycount;
