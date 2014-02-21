@@ -67,10 +67,12 @@ class BTNode {
     * The main memory buffer for loading the content of the disk page 
     * that contains the node.
     */
-    char buffer[PageFile::PAGE_SIZE];
+     char buffer[PageFile::PAGE_SIZE];
+    //char buffer[124];
 
     static const int RECORD_VALUE = sizeof(int) + sizeof(RecordId);
-    static const int RECORDS_PER_PAGE = (PageFile::PAGE_SIZE - sizeof(int)) / RECORD_VALUE;
+     static const int RECORDS_PER_PAGE = (PageFile::PAGE_SIZE - sizeof(PageId)) / RECORD_VALUE;
+   // static const int RECORDS_PER_PAGE = (124 - sizeof(PageId)) / RECORD_VALUE;
 
     int m_keycount;
 
@@ -139,8 +141,7 @@ class BTLeafNode: public BTNode {
     * Return the pid of the next slibling node.
     * @return the PageId of the next sibling node 
     */
-    PageId getNextNodePtr();
-
+   PageId getNextNodePtr();
 
    /**
     * Set the next slibling node PageId.
@@ -148,14 +149,14 @@ class BTLeafNode: public BTNode {
     * @return 0 if successful. Return an error code if there is an error.
     */
     RC setNextNodePtr(PageId pid);
-
+bool incrementKey(); 
   private:
     /**
     * Compares the current key count with the maximum number of records a
     * a page can hold and increments key count if possible
     * @return true if key was incremented. False otherwise
     */
-    bool incrementKey(); 
+    
 
     /**
      * Inserts a (key, rid) pair to the memory for the node

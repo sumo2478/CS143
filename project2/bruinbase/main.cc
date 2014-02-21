@@ -17,7 +17,7 @@
 
 using namespace std;
 
-void test_function()
+void test_insertion()
 {
 	BTLeafNode b;
 	b.create();
@@ -32,6 +32,7 @@ void test_function()
 	int key = 0;
 	RecordId n_rid;
 
+
 	b.readEntry(0, key, n_rid);
 	assert(key == 5);
 	assert(n_rid.pid == 10);
@@ -41,6 +42,7 @@ void test_function()
 	rid.pid = 100;
 	rid.sid = 113;
 	b.insert(12, rid);
+
 	b.readEntry(0, key, n_rid);
 	assert(key == 5);
 	assert(n_rid.pid == 10);
@@ -114,7 +116,121 @@ void test_function()
 	
 	assert(eid == 0);
 
+
+	// Continuously appending values to the end
+	BTLeafNode b3;
+	b3.create();
+
+	RecordId rid4;
+	rid4.sid = 4;
+	rid4.pid = 7;
+
+	int counter = 0;
+
+	while (b.insert(counter, rid4) == 0)
+		counter++;
+
  // [4,5,7,12,15,16,17]
+	cout << "Insertion tests passed...\n";
+}
+
+void test_sibling_node()
+{
+	BTLeafNode b;
+	b.create();
+
+	// Testing insert Leaf Node
+	RecordId rid;
+	rid.pid = 10;
+	rid.sid = 13;
+
+	PageId pid = 132;
+
+	b.insert(5, rid);
+	b.setNextNodePtr(pid);
+
+	assert(b.getNextNodePtr() == pid);
+
+	// Inserting to the end to see if pid overwritten
+
+	while (b.insert(5,rid) == 0)
+		continue;
+
+	assert(b.getNextNodePtr() == pid);
+
+	cout << "Sibling node tests passed...\n";
+}
+
+void test_insert_and_split()
+{
+	BTLeafNode b;
+	b.create();
+
+	int counter = 0;
+	RecordId rid;
+	rid.pid = 10;
+	rid.sid = 20;
+
+	while (b.insert(counter, rid) == 0)
+		counter+=2;
+
+	cout << "Before: " << endl;
+	b.printBuffer();
+
+	BTLeafNode sibling;
+	sibling.create();
+	int sibling_key = -1;
+
+	RecordId rid2;
+	rid2.pid = 33;
+	rid2.sid = 11;
+	b.insertAndSplit(7, rid2, sibling, sibling_key);
+	//b.insert(7, rid2);
+
+	cout << "B: " << endl;
+	b.printBuffer();
+	cout << "Sibling: " << endl;
+	sibling.printBuffer();
+
+	cout << "Key: " << sibling_key << endl;
+}
+
+void test_substitute_insertion()
+{
+	BTLeafNode b;
+	b.create();
+
+	RecordId rid;
+	rid.pid = 3;
+	rid.sid = 4;
+
+	for (int i = 0; i < 10; i+=2)
+		b.insert(i, rid);
+
+	b.insert(7, rid);
+
+	int eid = -1;
+	b.locate(7, eid);
+	assert(eid == 4);
+	b.locate(8, eid);
+	assert(eid == 5);
+
+	cout << "Substitution insertion passed...\n";
+}
+
+void test_function()
+{
+	cout << endl;
+
+	 // test_insertion();
+
+	//test_substitute_insertion();
+
+	// test_sibling_node();
+
+	test_insert_and_split();
+
+	 
 
 	cout << "\nAll tests passed successfully!\n\n";
 }

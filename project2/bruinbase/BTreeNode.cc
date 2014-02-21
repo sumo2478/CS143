@@ -13,25 +13,12 @@ BTNode::BTNode()
 	m_keycount = 0;
 }
 
-/*
+/**
  * Return the number of keys stored in the node.
  * @return the number of keys in the node
  */
 int BTNode::getKeyCount()
 {
-	return m_keycount;
-}
-
-/*
- * Read the content of the node from the page pid in the PageFile pf.
- * @param pid[IN] the PageId to read
- * @param pf[IN] PageFile to read from
- * @return 0 if successful. Return an error code if there is an error.
- */
-RC BTNode::read(PageId pid, const PageFile& pf)
-{
-	RC err = pf.read(pid, buffer);
-
 	int num_entries = 0;
 
 	// Determine the number of keys in the node
@@ -48,7 +35,20 @@ RC BTNode::read(PageId pid, const PageFile& pf)
 		num_entries++;
 	}
 
-	m_keycount = num_entries;
+	return num_entries;
+}
+
+/**
+ * Read the content of the node from the page pid in the PageFile pf.
+ * @param pid[IN] the PageId to read
+ * @param pf[IN] PageFile to read from
+ * @return 0 if successful. Return an error code if there is an error.
+ */
+RC BTNode::read(PageId pid, const PageFile& pf)
+{
+	RC err = pf.read(pid, buffer);
+
+	m_keycount = getKeyCount();
 
 	return err;
 }
@@ -78,11 +78,11 @@ RC BTNode::readLeafEntry(int eid, int& key, RecordId& rid)
 		return RC_NO_SUCH_RECORD;
 
 	int* p = (int*) buffer;
-	p = p + (eid*RECORD_VALUE);
+	p = p + (eid * RECORD_VALUE/sizeof(int));
 
 	key = *p;
-	rid.pid = *(p + sizeof(int));
-	rid.sid = *(p + 2*sizeof(int));
+	rid.pid = *(p + 1);
+	rid.sid = *(p + 2);
 	return 0;
 }
 
@@ -95,11 +95,11 @@ void BTNode::printBuffer()
 	for (int i = 0; i < m_keycount; i++)
 	{
 		int* p = (int*) buffer;
-		p = p + (i*RECORD_VALUE);
+		p = p + (i * RECORD_VALUE/sizeof(int));
 
 		cout << "[" << *p << "]";
-		cout << "[" << *(p + sizeof(int)) << "]";
-		cout << "[" << *(p + 2*sizeof(int)) << "]\n";
+		cout << "[" << *(p + 1) << "]";
+		cout << "[" << *(p + 2) << "]\n";
 	}
 	cout << "End Buffer =====================================\n";
 }
@@ -129,10 +129,10 @@ RC BTLeafNode::create()
 void BTLeafNode::insertNode(int key, const RecordId& rid, int offset)
 {
 	int* p = (int*) buffer;
-	p = p + (offset*RECORD_VALUE);
+	p = p + (offset * RECORD_VALUE/sizeof(int));
 	*p = key;
-	*(p + 1*sizeof(int)) = rid.pid;
-	*(p + 2*sizeof(int)) = rid.sid;
+	*(p + 1) = rid.pid;
+	*(p + 2) = rid.sid;
 }
 
 /*
@@ -154,28 +154,33 @@ RC BTLeafNode::insert(int key, const RecordId& rid)
 	// Otherwise return status code error
 	if (status < 0)
 	{
+		// If no such record then append to the end of the node
 		if (status == RC_NO_SUCH_RECORD)
-			eid = m_keycount-1;
+		{
+			insertNode(key, rid, m_keycount-1);
+			return 0;
+		}
 		else
 			return status;
 	}
 
+	
 	// TODO: Move to helper function if insert and split needs it?
 	// Move all pairs past the insert position one record over
 	// Determine the number of records to move ove
 	int num_records = m_keycount - eid;
-	for (int i = num_records; i > eid-1 ; i--)
+	for (int i = m_keycount-1; i > eid ; i--)
 	{
 		// Extract values from this record
-		int key = -1;
+		int n_key = -1;
 		RecordId rid;
-		if ((status = readEntry(i, key, rid)) < 0)
+		if ((status = readEntry(i-1, n_key, rid)) < 0)
 			return status;
 
 		// Insert the values into the correct position
-		insertNode(key, rid, i + 1);
+		insertNode(n_key, rid, i);
 	}
-
+	
 	// Insert the new value into the correct position
 	insertNode(key, rid, eid);
 
@@ -194,7 +199,52 @@ RC BTLeafNode::insert(int key, const RecordId& rid)
  */
 RC BTLeafNode::insertAndSplit(int key, const RecordId& rid, 
                               BTLeafNode& sibling, int& siblingKey)
-{ return 0; }
+{ 
+	int error = 0;
+
+	// If the node is not full then return an error
+	if (m_keycount < RECORDS_PER_PAGE)
+		return RC_INVALID_FILE_FORMAT;
+	// If the sibling node is not empty then return an error
+	else if(sibling.getKeyCount() != 0)
+		return RC_INVALID_ATTRIBUTE;
+
+	// The middle split point of the node
+	int mid = m_keycount / 2;
+
+	// Set the sibling key to the first entry of the right node
+	RecordId tmp;
+	readEntry(mid, siblingKey, tmp);
+
+	// Copy over the second half of the node to the sibling
+	for (int i = mid; i < m_keycount; i++)
+	{
+		int record_key = -1;
+		RecordId record_rid;
+
+		if ((error = readEntry(i, record_key, record_rid)) < 0)
+			return error;
+
+		sibling.insert(record_key, record_rid);
+	}
+
+	// Set the rest of the node to empty
+	char *p = buffer;
+	p = p + mid*RECORD_VALUE;
+	memset(p, -1, sizeof(buffer) / 2);
+
+	// Set the keycount of the node
+	m_keycount = getKeyCount();
+
+	// Insert the record into the left leaf node if the value is less than 
+	// The left most right node
+	// if (key < siblingKey)
+	// 	insert(key, rid);
+	// else
+	// 	sibling.insert(key, rid);
+
+	return 0; 
+}
 
 /*
  * Find the entry whose key value is larger than or equal to searchKey
@@ -242,7 +292,14 @@ RC BTLeafNode::readEntry(int eid, int& key, RecordId& rid)
  * @return the PageId of the next sibling node 
  */
 PageId BTLeafNode::getNextNodePtr()
-{ return 0; }
+{ 
+	int* p = (int*) buffer;
+
+	// Move pointer to sibling node position
+	p = (p + RECORDS_PER_PAGE*RECORD_VALUE/sizeof(int));
+
+	return *p;
+}
 
 /*
  * Set the pid of the next slibling node.
@@ -250,7 +307,16 @@ PageId BTLeafNode::getNextNodePtr()
  * @return 0 if successful. Return an error code if there is an error.
  */
 RC BTLeafNode::setNextNodePtr(PageId pid)
-{ return 0; }
+{ 
+	int* p = (int*) buffer;
+
+	// Move pointer to sibling node position
+	p = (p + RECORDS_PER_PAGE*RECORD_VALUE/sizeof(int));
+
+	*p = pid;
+
+	return 0; 
+}
 
 bool BTLeafNode::incrementKey()
 {
