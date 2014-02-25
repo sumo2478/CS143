@@ -13,6 +13,13 @@
 #include "RecordFile.h"
 #include "PageFile.h"
 #include "Bruinbase.h"
+
+typedef struct {
+  int     key;  // key for that entry
+  PageId  pid;  // page number. the first page is 0
+  int     sid;  // slot number. the first slot is 0
+} Entry;
+
 /**
  * BTNode: The base class representing a B+tree node
  */
@@ -69,8 +76,8 @@ class BTNode {
     */
      char buffer[PageFile::PAGE_SIZE];
     //char buffer[124];
-
-    static const int RECORD_VALUE = sizeof(int) + sizeof(RecordId);
+     
+    static const int RECORD_VALUE = sizeof(Entry);
     static const int RECORDS_PER_PAGE = (PageFile::PAGE_SIZE - sizeof(PageId)) / RECORD_VALUE;
    // static const int RECORDS_PER_PAGE = (124 - sizeof(PageId)) / RECORD_VALUE;
 

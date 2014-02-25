@@ -77,12 +77,13 @@ RC BTNode::readLeafEntry(int eid, int& key, RecordId& rid)
 	if (eid > RECORDS_PER_PAGE)
 		return RC_NO_SUCH_RECORD;
 
-	int* p = (int*) buffer;
-	p = p + (eid * RECORD_VALUE/sizeof(int));
+	Entry* e = (Entry*) buffer;
+	e = e + eid;
 
-	key = *p;
-	rid.pid = *(p + 1);
-	rid.sid = *(p + 2);
+	key = e->key;
+	rid.pid = e->pid;
+	rid.sid = e->sid;
+
 	return 0;
 }
 
@@ -94,12 +95,13 @@ void BTNode::printBuffer()
 	
 	for (int i = 0; i < m_keycount; i++)
 	{
-		int* p = (int*) buffer;
-		p = p + (i * RECORD_VALUE/sizeof(int));
+		int key = 0;
+		RecordId rid;
+		readLeafEntry(i, key, rid);
 
-		cout << "[" << *p << "]";
-		cout << "[" << *(p + 1) << "]";
-		cout << "[" << *(p + 2) << "]\n";
+		cout << "[" << key << "]";
+		cout << "[" << rid.pid << "]";
+		cout << "[" << rid.sid << "]\n";
 	}
 	cout << "End Buffer =====================================\n";
 }
@@ -128,11 +130,11 @@ RC BTLeafNode::create()
  */
 void BTLeafNode::insertNode(int key, const RecordId& rid, int offset)
 {
-	int* p = (int*) buffer;
-	p = p + (offset * RECORD_VALUE/sizeof(int));
-	*p = key;
-	*(p + 1) = rid.pid;
-	*(p + 2) = rid.sid;
+	Entry* e = (Entry*) buffer;
+	e = e + offset;
+	e->key = key;
+	e->pid = rid.pid;
+	e->sid = rid.sid;
 }
 
 /*
