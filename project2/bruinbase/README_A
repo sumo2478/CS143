@@ -1,0 +1,14 @@
+CS143 -- Project 2a -- Implmenting LOAD for Bruinbase
+
+Name: Collin Yen
+SID: 804034634
+Email: collinyen7@gmail.com
+
+Name: Alexander Guo
+SID: 104061305
+Email: aguo91@gmail.com
+
+Bruinbase can now load tables from a file.del
+
+Collin handled implementing the load functionality and Alex helped in the
+testing

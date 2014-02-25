@@ -228,7 +228,7 @@ void test_function()
 {
 	cout << endl;
 
-	 test_insertion();
+	test_insertion();
 
 	test_substitute_insertion();
 

@@ -1,0 +1,17 @@
+CS143 -- Project 2b -- Implemented BTLeafNode and BTNonLeafNode
+
+Name: Collin Yen
+SID: 804034634
+Email: collinyen7@gmail.com
+
+Name: Alexander Guo
+SID: 104061305
+Email: aguo91@gmail.com
+
+BTLeafNode and BTNonLeafNode nodes are implemented for the B+ Tree.
+Both the these classes are inherited from a BTNode base class.
+BTLeaf Node stores its data inside of a buffer by storing the
+key, pid, and sid for each entry into the node and the last 4 bits
+of the buffer contain the next pid.
+
+Collin implemented the BTLeafNode and Alex impelemented the BTNonLeafNode
