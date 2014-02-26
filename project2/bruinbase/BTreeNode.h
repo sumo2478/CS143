@@ -20,6 +20,7 @@ typedef struct {
   int     sid;  // slot number. the first slot is 0
 } Entry;
 
+ 
 /**
  * BTNode: The base class representing a B+tree node
  */
@@ -34,13 +35,17 @@ class BTNode {
     * @param rid[IN] the RecordId to insert
     * @return 0 if successful. Return an error code if the node is full.
     */
-    virtual RC insert(int key, const RecordId& rid) = 0;
+
+    // TODO make this not virtual because nonleaf is slightly different
+    
+    RC insert(int key, const RecordId& rid);
+    RC insert(int key, PageId pid);
 
     /**
     * Return the number of keys stored in the node.
     * @return the number of keys in the node
     */
-    int getKeyCount(); 
+    virtual int getKeyCount() = 0; 
 
     /**
     * Read the content of the node from the page pid in the PageFile pf.
@@ -70,15 +75,19 @@ class BTNode {
     */
     RC readLeafEntry(int eid, int& key, RecordId& rid);
 
+
     /**
     * The main memory buffer for loading the content of the disk page 
     * that contains the node.
     */
      char buffer[PageFile::PAGE_SIZE];
     //char buffer[124];
-     
+
     static const int RECORD_VALUE = sizeof(Entry);
+    static const int KEY_PAGE = sizeof(int) + sizeof(PageId);
     static const int RECORDS_PER_PAGE = (PageFile::PAGE_SIZE - sizeof(PageId)) / RECORD_VALUE;
+    static const int SLOTS_PER_PAGE = (PageFile::PAGE_SIZE - 2 * sizeof(PageId)) / KEY_PAGE;
+    static const int MAX_NONLEAF_KEYS = (PageFile::PAGE_SIZE - sizeof(PageId))/ KEY_PAGE;
    // static const int RECORDS_PER_PAGE = (124 - sizeof(PageId)) / RECORD_VALUE;
 
     int m_keycount;
@@ -110,6 +119,13 @@ class BTLeafNode: public BTNode {
     * @return 0 if successful. Return an error code if the node is full.
     */
     RC insert(int key, const RecordId& rid);
+
+    /**
+    * Return the number of keys stored in the node.
+    * @return the number of keys in the node
+    */
+    int getKeyCount(); 
+
 
     /**
     * Insert the (key, rid) pair to the node
@@ -156,7 +172,7 @@ class BTLeafNode: public BTNode {
     * @return 0 if successful. Return an error code if there is an error.
     */
     RC setNextNodePtr(PageId pid);
-bool incrementKey(); 
+    bool incrementKey(); 
   private:
     /**
     * Compares the current key count with the maximum number of records a
@@ -182,6 +198,7 @@ bool incrementKey();
  */
 class BTNonLeafNode: public BTNode {
   public:
+    RC create();
    /**
     * Insert a (key, pid) pair to the node.
     * Remember that all keys inside a B+tree node should be kept sorted.
@@ -191,6 +208,13 @@ class BTNonLeafNode: public BTNode {
     */
     RC insert(int key, PageId pid);
 
+    /*
+    * Looks up an entry and returns its key
+    * @param eid[IN]  the entry number to read from
+    * @param key[OUT] the key from the slot
+    * @return 0 if successful. Return an error code if there is an error
+    */
+    RC readNonLeafEntry(int eid, int& key);
    /**
     * Insert the (key, pid) pair to the node
     * and split the node half and half with sibling.
@@ -223,6 +247,8 @@ class BTNonLeafNode: public BTNode {
     * @return 0 if successful. Return an error code if there is an error.
     */
     RC initializeRoot(PageId pid1, int key, PageId pid2);
+
+    int getKeyCount();
 
 }; 
 
