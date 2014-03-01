@@ -111,14 +111,10 @@ void BTNode::printBuffer()
 // BTLeafNode Implementation
 //============================================================================
 
-/**
-* Creates a new BTLeaf Node
-* @return 0 if successful.
-*/
-RC BTLeafNode::create()
+BTLeafNode::BTLeafNode()
 {
-		memset(buffer, -1, sizeof(buffer));
-		m_keycount = 0;
+	memset(buffer, -1, sizeof(buffer));
+	m_keycount = 0;
 }
 
 /**

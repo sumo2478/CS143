@@ -20,9 +20,8 @@ using namespace std;
 void test_insertion()
 {
 	BTLeafNode b;
-	b.create();
 
-	// Testing insert Leaf Node
+	// Testing insert single entry into Leaf Node
 	RecordId rid;
 	rid.pid = 10;
 	rid.sid = 13;
@@ -38,21 +37,33 @@ void test_insertion()
 	assert(n_rid.pid == 10);
 	assert(n_rid.sid == 13);
 
-	// Test insert first leaf node
+	// Test insert to end
 	rid.pid = 100;
 	rid.sid = 113;
 	b.insert(12, rid);
 
+	// Make sure 5 is still first
 	b.readEntry(0, key, n_rid);
 	assert(key == 5);
 	assert(n_rid.pid == 10);
 	assert(n_rid.sid == 13);
 
-	// Test insert second leaf node
+	// Make sure 12 is last
 	b.readEntry(1, key, n_rid);
 	assert(key == 12);
 	assert(n_rid.pid == 100);
 	assert(n_rid.sid == 113);
+
+	// Test inserting to the beginning
+	rid.pid = 55;
+	rid.sid = 66;
+	b.insert(3, rid);
+
+	// Make sure 3 is first
+	b.readEntry(0, key, n_rid);
+	assert(key == 3);
+	assert(n_rid.pid == 55);
+	assert(n_rid.sid == 66);
 
 	// Test writing leaf node to file
 	PageFile p("test", 'w');
@@ -62,23 +73,26 @@ void test_insertion()
 	BTLeafNode b2;
 	b2.read(pid, p);
 	b2.readEntry(1, key, n_rid);
-	assert(key == 12);
-	assert(n_rid.pid == 100);
-	assert(n_rid.sid == 113);
+	assert(key == 5);
+	assert(n_rid.pid == 10);
+	assert(n_rid.sid == 13);
 
 	// Test the locate function
 	int eid = -1;
 	b2.locate(6, eid);
-	assert(eid == 1);
+	assert(eid == 2);
 	eid = -1;
 	b2.locate(1, eid);
 	assert(eid == 0);
 	eid = -1;
 	b2.locate(4, eid);
-	assert(eid == 0);
+	assert(eid == 1);
 	eid = -1;
 	b2.locate(5, eid);
-	assert(eid == 0);
+	assert(eid == 1);
+	eid = -1;
+	// Test end
+	b2.locate(100, eid);
 	eid = -1;
 
 	int err = b2.locate(21, eid);
@@ -86,10 +100,10 @@ void test_insertion()
 
 	eid = -1;
 	b2.locate(12, eid);
-	assert(eid == 1);
+	assert(eid == 2);
 	eid = -1;
 	b2.locate(11, eid);
-	assert(eid == 1);
+	assert(eid == 2);
 	
 	// Test insert out of order
 	RecordId rid3;
@@ -104,9 +118,9 @@ void test_insertion()
 	rid3.sid = 333;
 	b2.insert(7, rid3);
 	eid = -1;
-	b2.locate(7, eid);
+	b2.locate(8, eid);
 
-	assert(eid == 1);
+	assert(eid == 3);
 
 	rid3.pid = 5;
 	rid3.sid = 8;
@@ -119,7 +133,6 @@ void test_insertion()
 
 	// Continuously appending values to the end
 	BTLeafNode b3;
-	b3.create();
 
 	RecordId rid4;
 	rid4.sid = 4;
@@ -137,7 +150,6 @@ void test_insertion()
 void test_sibling_node()
 {
 	BTLeafNode b;
-	b.create();
 
 	// Testing insert Leaf Node
 	RecordId rid;
@@ -164,7 +176,6 @@ void test_sibling_node()
 void test_insert_and_split()
 {
 	BTLeafNode b;
-	b.create();
 	b.setNextNodePtr(777);
 
 	int counter = 0;
@@ -176,7 +187,6 @@ void test_insert_and_split()
 		counter+=2;
 
 	BTLeafNode sibling;
-	sibling.create();
 	int sibling_key = -1;
 
 	RecordId rid2;
@@ -204,7 +214,6 @@ void test_insert_and_split()
 void test_substitute_insertion()
 {
 	BTLeafNode b;
-	b.create();
 
 	RecordId rid;
 	rid.pid = 3;

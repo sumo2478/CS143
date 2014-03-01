@@ -76,7 +76,7 @@ class BTNode {
     */
      char buffer[PageFile::PAGE_SIZE];
     //char buffer[124];
-     
+
     static const int RECORD_VALUE = sizeof(Entry);
     static const int RECORDS_PER_PAGE = (PageFile::PAGE_SIZE - sizeof(PageId)) / RECORD_VALUE;
    // static const int RECORDS_PER_PAGE = (124 - sizeof(PageId)) / RECORD_VALUE;
@@ -96,11 +96,7 @@ class BTNode {
 class BTLeafNode: public BTNode {
   public:
 
-    /**
-    * Creates a new BTLeaf Node
-    * @return 0 if successful.
-    */
-    RC create();
+    BTLeafNode();
 
     /**
     * Insert the (key, rid) pair to the node.
