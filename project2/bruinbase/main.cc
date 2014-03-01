@@ -17,6 +17,26 @@
 
 using namespace std;
 
+void test_nonleaf_insertion()
+{
+	PageFile p("test", 'w');
+	PageId pid1 = 1;
+	PageId pid2 = 3;
+	PageId pid3 = 199;
+	PageId pid4 = 81;
+	BTNonLeafNode b;
+	b.create();
+	
+	b.initializeRoot(pid1, 3, pid2);
+	b.insert(5, pid3);
+	b.insert(4, pid4);
+	//b.insert(1, 11);
+	b.printBuffer();
+	cout << "KeyCount:" << b.getKeyCount() <<endl;
+	b.locateChildPtr(6,pid2);
+	assert(pid2 == 199);
+}
+
 void test_insertion()
 {
 	BTLeafNode b;
@@ -142,7 +162,7 @@ void test_insertion()
 
 	while (b.insert(counter, rid4) == 0)
 		counter++;
-
+	b2.printBuffer();
  // [4,5,7,12,15,16,17]
 	cout << "Insertion tests passed...\n";
 }
@@ -173,6 +193,28 @@ void test_sibling_node()
 	cout << "Sibling node tests passed...\n";
 }
 
+void test_nonleaf_insert_and_split()
+{
+	BTNonLeafNode b;
+	b.create();
+	b.initializeRoot(1, 1, 3);
+	PageId pid = 10;
+	int counter = 2;
+	while(b.insert(counter, pid) == 0) {
+		counter += 2;
+		pid += 1;
+	}
+	b.printBuffer();
+
+	BTNonLeafNode sibling;
+	sibling.create();
+	int sibling_key = -1;
+
+	b.insertAndSplit(127, 7777777, sibling, sibling_key);
+	
+	assert(sibling_key == 126);
+
+}
 void test_insert_and_split()
 {
 	BTLeafNode b;
@@ -237,13 +279,16 @@ void test_function()
 {
 	cout << endl;
 
-	test_insertion();
+	//test_nonleaf_insertion();
+	test_nonleaf_insert_and_split();
+	cout << endl <<endl<<endl;
+	//test_insertion();
 
-	test_substitute_insertion();
+	//test_substitute_insertion();
 
-	test_sibling_node();
+	//test_sibling_node();
 
-	test_insert_and_split();
+	//test_insert_and_split();
 
 	 
 
@@ -252,10 +297,10 @@ void test_function()
 
 int main()
 {
-  // run the SQL engine taking user commands from standard input (console).
-  // SqlEngine::run(stdin);
+	// run the SQL engine taking user commands from standard input (console).
+	// SqlEngine::run(stdin);
 
 
 	test_function();
-  return 0;
+	return 0;
 }

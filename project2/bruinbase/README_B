@@ -1,4 +1,5 @@
-CS143 -- Project 2b -- Implemented BTLeafNode and BTNonLeafNode
+CS143 -- Project 2b
+Implemented BTLeafNode and BTNonLeafNode
 
 Name: Collin Yen
 SID: 804034634
@@ -13,5 +14,10 @@ Both the these classes are inherited from a BTNode base class.
 BTLeaf Node stores its data inside of a buffer by storing the
 key, pid, and sid for each entry into the node and the last 4 bits
 of the buffer contain the next pid.
+BTNonLeaf Node stores its data inside of a buffer by storing
+PageIds and Keys. Starting with a PageId, the buffer alternates
+PageIds and Keys ending with a PageId. These PageIds work as 
+"pointers" to child nodes that could be other BTNonLeaf nodes or 
+BTLeafNodes.
 
-Collin implemented the BTLeafNode and Alex impelemented the BTNonLeafNode
+Collin implemented the BTLeafNode and Alex implemented the BTNonLeafNode.

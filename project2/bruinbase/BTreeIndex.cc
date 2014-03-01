@@ -18,6 +18,7 @@ using namespace std;
 BTreeIndex::BTreeIndex()
 {
     rootPid = -1;
+    treeHeight = 0;
 }
 
 /*
@@ -29,7 +30,8 @@ BTreeIndex::BTreeIndex()
  */
 RC BTreeIndex::open(const string& indexname, char mode)
 {
-    return 0;
+    RC rc = pf.open(indexname, mode);
+    return rc;
 }
 
 /*
@@ -38,7 +40,8 @@ RC BTreeIndex::open(const string& indexname, char mode)
  */
 RC BTreeIndex::close()
 {
-    return 0;
+    RC rc = pf.close();
+    return rc;
 }
 
 /*
@@ -52,6 +55,8 @@ RC BTreeIndex::insert(int key, const RecordId& rid)
     return 0;
 }
 
+
+// TODO by Alex
 /*
  * Find the leaf-node index entry whose key value is larger than or 
  * equal to searchKey, and output the location of the entry in IndexCursor.
@@ -88,3 +93,9 @@ RC BTreeIndex::readForward(IndexCursor& cursor, int& key, RecordId& rid)
 {
     return 0;
 }
+
+// Need to write/read data that is associated with the B tree
+// This data is something we want to read after we use the open function
+// Before we close, we write the data to the disk to save it
+// Use pf.write()
+// treeHeight, rootPid needs to be saved. I don't know what else.
