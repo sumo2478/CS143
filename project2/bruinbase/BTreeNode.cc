@@ -501,7 +501,7 @@ RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, in
 		return RC_INVALID_ATTRIBUTE;
 	
 	// The middle split point of the node
-	int mid = (m_keycount+1)/ 2;
+	int mid = (m_keycount)/ 2;
 
 	// Go through buffer
 	char * buf = (char*) buffer;

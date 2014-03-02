@@ -180,7 +180,7 @@ RC BTreeIndex::insert_recurse(int key, const RecordId& rid, int level, PageId cu
 			BTNonLeafNode sibling_node;
 			sibling_node.create();
 
-			int midKey = -1;
+			int midKey = 0;
 		
 			node.insertAndSplit(n_key, n_pid, sibling_node, midKey);
 			node.write(currNodePid, pf);
@@ -192,6 +192,9 @@ RC BTreeIndex::insert_recurse(int key, const RecordId& rid, int level, PageId cu
 			// Update the variables for the parent node to modify
 			new_key = midKey;
 			new_pid = sibling_pid;
+
+			if (new_key < 0)
+				cout << "THIS IS THE PROBLEM2::" << new_key << " \n\n\n\n";
 
 		}
 
