@@ -75,6 +75,7 @@ RC BTreeIndex::close()
  */
 RC BTreeIndex::insert(int key, const RecordId& rid)
 {
+	RC rc = 0;
 	// If the tree is empty then place a leaf node as the root
 	if (treeHeight == 0)
 	{
@@ -88,10 +89,17 @@ RC BTreeIndex::insert(int key, const RecordId& rid)
 		treeHeight = 1;
 	}else
 	{
-		insert_recurse(key, rid, 1, rootPid);
+		int new_key, new_pid;
+		rc = insert_recurse(key, rid, 1, rootPid, new_key, new_pid);
+
+		// If the node had to be split then should initialize a new root
+		if (rc == RC_NODE_FULL)
+		{
+			rc = createRoot(rootPid, new_key, new_pid);
+		}
 	}
 
-    return 0;
+    return rc;
 }
 
 /**
@@ -101,7 +109,7 @@ RC BTreeIndex::insert(int key, const RecordId& rid)
  * @param level[IN] the current level we are inserting too
  * @return error code. 0 if no error
  */
-RC BTreeIndex::insert_recurse(int key, const RecordId& rid, int level, PageId currNodePid)
+RC BTreeIndex::insert_recurse(int key, const RecordId& rid, int level, PageId currNodePid, int &new_key, PageId &new_pid)
 {
 	RC rc = 0;
 
@@ -112,7 +120,9 @@ RC BTreeIndex::insert_recurse(int key, const RecordId& rid, int level, PageId cu
 		b.read(currNodePid, pf);
 
 		// Try to insert into leaf node
-		if (b.insert(key, rid) == 0)
+		rc = b.insert(key, rid);
+
+		if (rc == 0)
 		{
 			b.write(currNodePid, pf);
 			return 0;
@@ -123,10 +133,7 @@ RC BTreeIndex::insert_recurse(int key, const RecordId& rid, int level, PageId cu
 		BTLeafNode sibling_node;
 		int sibling_key;
 
-		rc = b.insertAndSplit(key, rid, sibling_node, sibling_key);
-
-		if (rc < 0)
-			return rc;
+		b.insertAndSplit(key, rid, sibling_node, sibling_key);
 
 		// Write the new sibling node to the page file
 		PageId sibling_pid = pf.endPid();
@@ -137,9 +144,60 @@ RC BTreeIndex::insert_recurse(int key, const RecordId& rid, int level, PageId cu
 		b.write(currNodePid, pf);
 
 		// If we are at the root level then have to create a nonleaf node root
-		rc = createRoot(currNodePid, sibling_key, sibling_pid);
+		new_key = sibling_key;
+		new_pid = sibling_pid;
+
 		return rc;
 	}
+
+	// Otherwise insert into nonleaf node
+	BTNonLeafNode node;
+	node.read(currNodePid, pf);
+
+	// Locate the proper node to insert to
+	PageId child_pid = -1;
+	node.locateChildPtr(key, child_pid);
+
+	// Insert the node
+	int n_key;
+	PageId n_pid;
+	rc = insert_recurse(key, rid, level+1, child_pid, n_key, n_pid);
+
+	// If the node was full then it had to be split, which means
+	// we must insert the split value into this node
+	if (rc == RC_NODE_FULL)
+	{
+		rc = node.insert(n_key, n_pid);
+
+		// If the insert succeeded then save changes
+		if (rc == 0)
+		{
+			node.write(currNodePid, pf);		
+		}
+		// If the node is full then do an insert and split
+		else if (rc == RC_NODE_FULL)
+		{
+			BTNonLeafNode sibling_node;
+			sibling_node.create();
+
+			int midKey = -1;
+		
+			node.insertAndSplit(n_key, n_pid, sibling_node, midKey);
+			node.write(currNodePid, pf);
+
+			// Save the changes to the sibling node
+			PageId sibling_pid = pf.endPid();
+			sibling_node.write(sibling_pid, pf);
+
+			// Update the variables for the parent node to modify
+			new_key = midKey;
+			new_pid = sibling_pid;
+
+		}
+
+	}
+
+	return rc;
 }
 
 /**
@@ -158,7 +216,6 @@ RC BTreeIndex::createRoot(PageId pid1, int key, PageId pid2)
 
 	// Update the new root pid
 	rootPid = pf.endPid();
-	cout << "Root: " << rootPid << endl;
 	new_root.write(rootPid, pf);
 
 	treeHeight++;

@@ -116,7 +116,7 @@ protected:
  * @param rid[IN] the RecordId for the record being inserted into the index
  * @return error code. 0 if no error
  */
-  RC insert_recurse(int key, const RecordId& rid, int level, PageId currNodePid);
+  RC insert_recurse(int key, const RecordId& rid, int level, PageId currNodePid, int &new_key, PageId &new_pid);
 
 /**
  * Creates a new root for the index

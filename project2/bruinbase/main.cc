@@ -15,6 +15,7 @@
 #include "BTreeIndex.h"
 #include <iostream>
 #include <cassert>
+ #include <unistd.h>
 
 using namespace std;
 
@@ -285,11 +286,40 @@ void test_index_insert()
 
 	b.open("test", 'w');
 	
-	for (int i = 0; i < 2; i++)
-		b.insert(i, rid);
+	for (int i = 0; i < 1000; i++)
+	{
+		b.insert(i, rid);	
+	}
 
 	b.printTree();
+	
+	
 	b.close();
+}
+
+void test_random()
+{
+	BTNonLeafNode b;
+	b.create();
+
+	for (int i = 0; i < 10; i++)
+	{
+		if (b.insert(i, 1) < 0)
+		{
+			cout << "i: " << i << endl;
+			break;
+		}
+	}
+	cout << "Key count: " << b.getKeyCount() << endl;
+	BTNonLeafNode sibling;
+	sibling.create();
+	int key = -1;
+	b.insertAndSplit(20, 1, sibling, key);
+
+	b.printBuffer();
+	sibling.printBuffer();
+
+	cout << "End: " << key;
 }
 
 void test_function()
@@ -307,6 +337,8 @@ void test_function()
 	//test_insert_and_split();
 
 	test_index_insert();
+
+	//test_random();
 
 	cout << "\nAll tests passed successfully!\n\n";
 }

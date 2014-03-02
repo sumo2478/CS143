@@ -73,12 +73,18 @@ void BTNode::printBuffer()
 	{
 		int key = 0;
 		RecordId rid;
-		readLeafEntry(i, key, rid);
+		//readLeafEntry(i, key, rid);
+		int *p = (int*) buffer;
+		p++;
+		p = p + i*2;
+		key = *p;
+		int pid = *(p + 1);
 
 
 		cout << "[" << key << "]";
-		cout << "[" << rid.pid << "]";
-		cout << "[" << rid.sid << "]\n";
+		cout << "[" << pid << "]\n";
+		// cout << "[" << rid.pid << "]";
+		// cout << "[" << rid.sid << "]\n";
 	}
 	cout << "End Buffer =====================================\n";
 }
@@ -495,7 +501,7 @@ RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, in
 		return RC_INVALID_ATTRIBUTE;
 	
 	// The middle split point of the node
-	int mid = m_keycount / 2;
+	int mid = (m_keycount+1)/ 2;
 
 	// Go through buffer
 	char * buf = (char*) buffer;
