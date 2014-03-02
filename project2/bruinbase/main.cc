@@ -12,6 +12,7 @@
 #include "RecordFile.h"
 #include "PageFile.h"
 #include "BTreeNode.h"
+#include "BTreeIndex.h"
 #include <iostream>
 #include <cassert>
 
@@ -275,13 +276,28 @@ void test_substitute_insertion()
 	cout << "Substitution insertion passed...\n";
 }
 
+void test_index_insert()
+{
+	BTreeIndex b;
+	RecordId rid;
+	rid.pid = 3;
+	rid.sid = 4;
+
+	b.open("test", 'w');
+	
+	for (int i = 0; i < 2; i++)
+		b.insert(i, rid);
+
+	b.printTree();
+	b.close();
+}
+
 void test_function()
 {
-	cout << endl;
 
 	//test_nonleaf_insertion();
-	test_nonleaf_insert_and_split();
-	cout << endl <<endl<<endl;
+	//test_nonleaf_insert_and_split();
+	
 	//test_insertion();
 
 	//test_substitute_insertion();
@@ -290,7 +306,7 @@ void test_function()
 
 	//test_insert_and_split();
 
-	 
+	test_index_insert();
 
 	cout << "\nAll tests passed successfully!\n\n";
 }

@@ -27,6 +27,11 @@ typedef struct {
   int     eid;  
 } IndexCursor;
 
+typedef struct {
+  int treeHeight;
+  PageId rootPid;
+} TreeInfo;
+
 /**
  * Implements a B-Tree index for bruinbase.
  * 
@@ -89,6 +94,11 @@ class BTreeIndex {
    * @return error code. 0 if no error
    */
   RC readForward(IndexCursor& cursor, int& key, RecordId& rid);
+
+  void printTree();
+
+protected:
+  static const int TREE_INFO_PAGE = 0;
   
  private:
   PageFile pf;         /// the PageFile used to store the actual b+tree in disk
@@ -99,6 +109,25 @@ class BTreeIndex {
   /// this class is destructed. Make sure to store the values of the two 
   /// variables in disk, so that they can be reconstructed when the index
   /// is opened again later.
+
+/**
+ * Recursively inserts (key, RecordId) pair to the index
+ * @param key[IN] the key for the value inserted into the index
+ * @param rid[IN] the RecordId for the record being inserted into the index
+ * @return error code. 0 if no error
+ */
+  RC insert_recurse(int key, const RecordId& rid, int level, PageId currNodePid);
+
+/**
+ * Creates a new root for the index
+ * @param pid1[IN] the first PageId to insert
+ * @param key[IN] the key that should be inserted between the two PageIds
+ * @param pid2[IN] the PageId to insert behind the key
+ * @return 0 if successful. Return an error code if there is an error.
+ */
+  RC createRoot(PageId pid1, int key, PageId pid2);
+
+  void printRecurse(PageId pid, int level);
 };
 
 #endif /* BTREEINDEX_H */

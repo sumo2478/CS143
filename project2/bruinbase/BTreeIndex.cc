@@ -9,6 +9,7 @@
  
 #include "BTreeIndex.h"
 #include "BTreeNode.h"
+#include <iostream>
 
 using namespace std;
 
@@ -31,6 +32,19 @@ BTreeIndex::BTreeIndex()
 RC BTreeIndex::open(const string& indexname, char mode)
 {
     RC rc = pf.open(indexname, mode);
+
+    // Read in the tree specifications
+    // If the tree is empty then just return
+    if (pf.endPid() == 0)
+  		return rc;
+
+  	char buffer[1024];
+  	pf.read(TREE_INFO_PAGE,buffer);
+
+  	TreeInfo* t = (TreeInfo*) buffer;
+  	treeHeight = t-> treeHeight;
+  	rootPid = t-> rootPid;
+ 
     return rc;
 }
 
@@ -40,6 +54,15 @@ RC BTreeIndex::open(const string& indexname, char mode)
  */
 RC BTreeIndex::close()
 {
+	char buffer[1024];
+	pf.read(TREE_INFO_PAGE, buffer);
+
+	// Write the tree info the the page file
+	TreeInfo* t = (TreeInfo*) buffer;
+	t->treeHeight = treeHeight;
+	t->rootPid = rootPid;
+	pf.write(TREE_INFO_PAGE, buffer);
+
     RC rc = pf.close();
     return rc;
 }
@@ -52,7 +75,95 @@ RC BTreeIndex::close()
  */
 RC BTreeIndex::insert(int key, const RecordId& rid)
 {
+	// If the tree is empty then place a leaf node as the root
+	if (treeHeight == 0)
+	{
+		BTLeafNode new_node;
+		new_node.insert(key, rid);
+
+		// Update the new root
+		rootPid = 1;
+		new_node.write(rootPid, pf); // Write the node to the first page file
+
+		treeHeight = 1;
+	}else
+	{
+		insert_recurse(key, rid, 1, rootPid);
+	}
+
     return 0;
+}
+
+/**
+ * Recursively inserts (key, RecordId) pair to the index
+ * @param key[IN] the key for the value inserted into the index
+ * @param rid[IN] the RecordId for the record being inserted into the index
+ * @param level[IN] the current level we are inserting too
+ * @return error code. 0 if no error
+ */
+RC BTreeIndex::insert_recurse(int key, const RecordId& rid, int level, PageId currNodePid)
+{
+	RC rc = 0;
+
+	// If we are at the leaf node level then just insert to the leaf node
+	if (level == treeHeight)
+	{
+		BTLeafNode b;
+		b.read(currNodePid, pf);
+
+		// Try to insert into leaf node
+		if (b.insert(key, rid) == 0)
+		{
+			b.write(currNodePid, pf);
+			return 0;
+		}
+
+		// If the node is full then we need to do an insert and split
+		// Initialize the sibling leaf node
+		BTLeafNode sibling_node;
+		int sibling_key;
+
+		rc = b.insertAndSplit(key, rid, sibling_node, sibling_key);
+
+		if (rc < 0)
+			return rc;
+
+		// Write the new sibling node to the page file
+		PageId sibling_pid = pf.endPid();
+		sibling_node.write(sibling_pid, pf);
+
+		// Update the leaf nodes next pointer
+		b.setNextNodePtr(sibling_pid);
+		b.write(currNodePid, pf);
+
+		// If we are at the root level then have to create a nonleaf node root
+		rc = createRoot(currNodePid, sibling_key, sibling_pid);
+		return rc;
+	}
+}
+
+/**
+ * Creates a new root for the index
+ * @param pid1[IN] the first PageId to insert
+ * @param key[IN] the key that should be inserted between the two PageIds
+ * @param pid2[IN] the PageId to insert behind the key
+ * @return 0 if successful. Return an error code if there is an error.
+ */
+RC BTreeIndex::createRoot(PageId pid1, int key, PageId pid2)
+{
+	BTNonLeafNode new_root;
+
+	new_root.create();
+	RC rc = new_root.initializeRoot(pid1, key, pid2);
+
+	// Update the new root pid
+	rootPid = pf.endPid();
+	cout << "Root: " << rootPid << endl;
+	new_root.write(rootPid, pf);
+
+	treeHeight++;
+
+	return rc;
 }
 
 
@@ -99,3 +210,58 @@ RC BTreeIndex::readForward(IndexCursor& cursor, int& key, RecordId& rid)
 // Before we close, we write the data to the disk to save it
 // Use pf.write()
 // treeHeight, rootPid needs to be saved. I don't know what else.
+
+void BTreeIndex::printTree()
+{
+	printRecurse(rootPid, 1);
+}
+
+void BTreeIndex::printRecurse(PageId pid, int level)
+{
+	cout << "\n========================================\n";
+	cout << "Printing out level: " << level << endl;
+	if (level > treeHeight)
+		return;
+	// Leaf node
+	else if (level == treeHeight)
+	{
+		BTLeafNode node;
+		node.read(pid, pf);
+		RecordId rid;
+		int key = -1;
+		for (int i = 0; i < node.getKeyCount(); i++)
+		{
+			node.readEntry(i, key, rid);
+			cout << "[" << key << "]";
+		}
+	}
+	else
+	{
+		BTNonLeafNode node;
+		node.create();
+		node.read(pid, pf);
+		int key = -1;
+		for (int i = 0; i < node.getKeyCount(); i++)
+		{
+			node.readNonLeafEntry(i, key);
+			cout << "[" << key << "]";
+		}
+
+		key = -1;
+		node.readNonLeafEntry(0, key);
+		PageId child;
+		node.locateChildPtr(key-1, child);
+		printRecurse(child, level+1);
+
+		for (int i = 0; i < node.getKeyCount(); i++)
+		{
+			key = -1;
+			node.readNonLeafEntry(i, key);
+			PageId child_page;
+			node.locateChildPtr(key, child_page);
+			printRecurse(child_page, level+1);
+		}
+
+	}
+	cout << "\n========================================\n";
+}

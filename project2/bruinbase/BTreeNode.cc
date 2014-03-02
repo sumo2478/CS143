@@ -210,8 +210,8 @@ RC BTLeafNode::insertAndSplit(int key, const RecordId& rid,
 		return RC_INVALID_ATTRIBUTE;
 
 	// The middle split point of the node
-	int mid = m_keycount / 2;
-
+	int mid = (m_keycount + 1) / 2;
+	
 	// Set the sibling key to the first entry of the right node
 	RecordId tmp;
 	readEntry(mid, siblingKey, tmp);
