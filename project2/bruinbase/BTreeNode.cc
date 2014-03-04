@@ -1,3 +1,4 @@
+
 #include "BTreeNode.h"
 #include <iostream>
 
@@ -501,7 +502,7 @@ RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, in
 		return RC_INVALID_ATTRIBUTE;
 	
 	// The middle split point of the node
-	int mid = (m_keycount)/ 2;
+	int mid = m_keycount/ 2;
 
 	// Go through buffer
 	char * buf = (char*) buffer;
@@ -513,7 +514,8 @@ RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, in
 	}
 
 	// Set midkey node that will be extracted and put in parent node
-	midKey = *buf;
+	int *v = (int*) buf;
+	midKey = *v;
 
 	// Remember our place to delete later from buffer
 	char * needDelete = (char*) buf;
