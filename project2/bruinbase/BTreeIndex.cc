@@ -270,12 +270,13 @@ RC BTreeIndex::locate(int searchKey, IndexCursor& cursor)
 			return rc;
 		}
 		// Figure out where the leaf is located by traversing through
-		// the NonLeafNode
+		// the NonLeafNode to find the PageId
 		if((rc = nonleaf.locateChildPtr(searchKey, pid)) != 0) {
 			return rc;
 		}
 	}
 	// Now we are at the leaf level
+	// In the right page
 	BTLeafNode leaf;
 	// Read information in the LeafNode
 	if((rc = leaf.read(pid, pf)) != 0) {

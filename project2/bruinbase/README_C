@@ -1,0 +1,23 @@
+CS143 -- Project 2c
+Implemented insert(), locate(), and readForward() of BTreeIndex
+
+Name: Collin Yen
+SID: 804034634
+Email: collinyen7@gmail.com
+
+Name: Alexander Guo
+SID: 104061305
+Email: aguo91@gmail.com
+
+insert()
+The locate() function takes in a searchKey and cursor. As an output, it
+returns the error code or 0 if no error. The cursor is pointed to the 
+first index entry with the key value. We use a BTNonLeafNode to traverse
+through the tree to get to the leaf with the index value of the searchKey.
+The readForward() function takes in the cursor and then points the cursor
+at the next leaf-node index entry in the B+ tree. We use a BTLeafNode and
+use BTLeafNode member functions like read() and readEntry() to see if there
+are any other entries after the passed in cursor.
+
+Collin implemented the insert() and the associated helper functions.
+Alex implemented the locate() and readForward() functions.
