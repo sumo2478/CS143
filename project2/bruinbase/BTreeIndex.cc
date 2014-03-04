@@ -81,7 +81,7 @@ RC BTreeIndex::insert(int key, const RecordId& rid)
 	{
 		BTLeafNode new_node;
 		new_node.insert(key, rid);
-
+	
 		// Update the new root
 		rootPid = 1;
 		new_node.write(rootPid, pf); // Write the node to the first page file
@@ -139,10 +139,12 @@ RC BTreeIndex::insert_recurse(int key, const RecordId& rid, int level, PageId cu
 		// Write the new sibling node to the page file
 		PageId sibling_pid = pf.endPid();
 		sibling_node.write(sibling_pid, pf);
-
+		
 		// Update the leaf nodes next pointer
 		b.setNextNodePtr(sibling_pid);
 		b.write(currNodePid, pf);
+
+
 
 		// If we are at the root level then have to create a nonleaf node root
 		new_key = sibling_key;

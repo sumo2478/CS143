@@ -217,7 +217,7 @@ RC BTLeafNode::insertAndSplit(int key, const RecordId& rid,
 		return RC_INVALID_ATTRIBUTE;
 
 	// The middle split point of the node
-	int mid = (m_keycount + 1) / 2;
+	int mid = (m_keycount+1) / 2;
 	
 	// Set the sibling key to the first entry of the right node
 	RecordId tmp;
@@ -233,12 +233,15 @@ RC BTLeafNode::insertAndSplit(int key, const RecordId& rid,
 			return error;
 
 		sibling.insert(record_key, record_rid);
-	}
 
-	// Set the rest of the node to empty
-	char *p = buffer;
-	p = p + mid*RECORD_VALUE;
-	memset(p, -1, sizeof(buffer) / 2);
+		// Set the entry to empty
+		Entry* e = (Entry*) buffer;
+		e = e + i;
+		e->key = -1;
+		e->pid = -1;
+		e->sid = -1;
+
+	}
 
 	// Set the keycount of the node
 	m_keycount = getKeyCount();
@@ -503,7 +506,7 @@ RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, in
 		return RC_INVALID_ATTRIBUTE;
 	
 	// The middle split point of the node
-	int mid = m_keycount/ 2;
+	int mid = (m_keycount)/ 2;
 
 	// Go through buffer
 	char * buf = (char*) buffer;

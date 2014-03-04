@@ -9,7 +9,16 @@ Name: Alexander Guo
 SID: 104061305
 Email: aguo91@gmail.com
 
-insert()
+insert() - The insert function recursively inserts a new entry into
+the B+ tree index. Initially a single leaf node is placed at the top of the tree.
+Once this leaf node gets filled it will split and a nonleaf node root will be created
+that points to these two leaf nodes. Everytime an entry is to be inserted we traverse
+recursively down into the tree until we reach the leaf level. We then try to insert
+the entry and if it is full we execute an insert and split. The insert function that called
+it will see that the node was split so they will have to insert the middle key into its node
+and so on and so on until the root node gets filled in which case a new root node
+is created. 
+
 The locate() function takes in a searchKey and cursor. As an output, it
 returns the error code or 0 if no error. The cursor is pointed to the 
 first index entry with the key value. We use a BTNonLeafNode to traverse

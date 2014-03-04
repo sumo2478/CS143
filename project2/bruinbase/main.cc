@@ -32,7 +32,7 @@ void test_nonleaf_insertion()
 	b.insert(5, pid3);
 	b.insert(4, pid4);
 	//b.insert(1, 11);
-	b.printBuffer();
+	// b.printBuffer();
 	cout << "KeyCount:" << b.getKeyCount() <<endl;
 	b.locateChildPtr(6,pid2);
 	assert(pid2 == 199);
@@ -163,7 +163,7 @@ void test_insertion()
 
 	while (b.insert(counter, rid4) == 0)
 		counter++;
-	b2.printBuffer();
+	// b2.printBuffer();
  // [4,5,7,12,15,16,17]
 	cout << "Insertion tests passed...\n";
 }
@@ -204,7 +204,7 @@ void test_nonleaf_insert_and_split()
 		counter += 2;
 		pid += 1;
 	}
-	b.printBuffer();
+	// b.printBuffer();
 
 	BTNonLeafNode sibling;
 
@@ -228,16 +228,18 @@ void test_insert_and_split()
 	while (b.insert(counter, rid) == 0)
 		counter+=2;
 
+	
 	BTLeafNode sibling;
 	int sibling_key = -1;
 
 	RecordId rid2;
 	rid2.pid = 33;
 	rid2.sid = 11;
+	cout << "My node pointer: " << b.getNextNodePtr() << endl;
 	b.insertAndSplit(7, rid2, sibling, sibling_key);
-
+	
 	// Check the sibling_key
-	assert(sibling_key == 84);
+	assert(sibling_key == 86);
 
 	int key = -1;
 	b.readEntry(0, key, rid);
@@ -246,6 +248,7 @@ void test_insert_and_split()
 	assert(key == 82);
 	b.readEntry(4, key, rid);
 	assert(key == 7);
+
 
 	// Assert that the next pointer was set
 	assert(sibling.getNextNodePtr() == 777);
@@ -317,46 +320,106 @@ void test_index_insert()
 	b.close();
 }
 
-void test_random()
+void test_locate_and_read_forward()
 {
-	BTNonLeafNode b;
+	BTreeIndex b;
+	RecordId rid;
+	rid.pid = 0;
+	rid.sid = 0;
 
+	RecordId rid2;
 
-	for (int i = 0; i < 10; i++)
+	b.open("test", 'w');
+
+	for(int i = 0; i < 10000; i+=2)
 	{
-		if (b.insert(i, 1) < 0)
+		rid.pid = i;
+		rid.sid = i;
+		b.insert(i, rid);
+	}
+
+	for (int i = 1; i < 10001; i+=2)
+	{
+		rid.pid = i;
+		rid.sid = i;
+		b.insert(i, rid);
+	}
+
+	IndexCursor ic;
+	b.locate(678, ic);
+
+	int key;
+	b.readForward(ic, key, rid2);
+	assert(key == 678);
+	assert(rid2.pid == 678);
+	assert(rid2.sid == 678);
+	b.readForward(ic, key, rid2);
+	assert(key == 679);
+	assert(rid2.pid == 679);
+	assert(rid2.sid == 679);
+
+	b.locate(999, ic);
+	b.readForward(ic, key, rid2);
+	assert(key == 999);
+	assert(rid2.pid = 999);
+	assert(rid2.sid == 999);
+
+	IndexCursor ic2;
+	b.locate(-10, ic2);
+	// Read forward test
+	// b.printTree();
+	for (int i = 0; i < 10001; i++)
+	{
+		if (b.readForward(ic2, key, rid2) < 0)
 		{
-			cout << "i: " << i << endl;
 			break;
 		}
+		
+		assert(key == i);
+		assert(rid2.pid == i);
+		assert(rid2.sid == i);
+
 	}
-	cout << "Key count: " << b.getKeyCount() << endl;
-	BTNonLeafNode sibling;
 
-	int key = -1;
-	b.insertAndSplit(20, 1, sibling, key);
+	cout << "locate and forward tests passed\n";
+}
 
-	b.printBuffer();
-	sibling.printBuffer();
+void test_random()
+{
+	BTreeIndex b;
+	b.open("test", 'w');
 
-	cout << "End: " << key;
+	RecordId rid;
+	rid.pid = 100;
+	rid.sid = 200;
+	for (int i = 0; i < 84; i++)
+	{
+		b.insert(i, rid);	
+	}
+	// b.insert(10, rid);
+	
+
+	b.close();
+
 }
 
 void test_function()
 {
 
-	//test_nonleaf_insertion();
-	//test_nonleaf_insert_and_split();
+	test_nonleaf_insertion();
+	test_nonleaf_insert_and_split();
 	
-	//test_insertion();
+	test_insertion();
 
-	//test_substitute_insertion();
+	test_substitute_insertion();
 
-	//test_sibling_node();
+	test_sibling_node();
 
-	//test_insert_and_split();
+	test_insert_and_split();
 
-	test_index_insert();
+	// test_index_insert();
+
+	test_locate_and_read_forward();
 
 	//test_random();
 
