@@ -87,7 +87,8 @@ RC BTreeIndex::insert(int key, const RecordId& rid)
 		new_node.write(rootPid, pf); // Write the node to the first page file
 
 		treeHeight = 1;
-	}else
+	}
+	else
 	{
 		int new_key, new_pid;
 		rc = insert_recurse(key, rid, 1, rootPid, new_key, new_pid);
@@ -247,7 +248,49 @@ RC BTreeIndex::createRoot(PageId pid1, int key, PageId pid2)
  */
 RC BTreeIndex::locate(int searchKey, IndexCursor& cursor)
 {
-    return 0;
+	RC rc = 0;
+	int eid;
+	
+	// Reject if tree is empty, 
+	if(treeHeight == 0) {
+		return RC_NO_SUCH_RECORD;
+	}
+
+	// Initialize NonLeafNode to search through NonLeafNodes in tree
+	// in order to locate to the leaves.
+	PageId pid = rootPid;
+	BTNonLeafNode nonleaf;
+	nonleaf.initializeRoot(0, -1,-1);
+	
+	// Search through the tree until we reach the LeafNodes
+	for(int curHeight = 1; curHeight < treeHeight; curHeight++)
+	{
+		// Read information in the NonLeafNode
+		if((rc = nonleaf.read(pid, pf)) != 0) {
+			return rc;
+		}
+		// Figure out where the leaf is located by traversing through
+		// the NonLeafNode
+		if((rc = nonleaf.locateChildPtr(searchKey, pid)) != 0) {
+			return rc;
+		}
+	}
+	// Now we are at the leaf level
+	BTLeafNode leaf;
+	// Read information in the LeafNode
+	if((rc = leaf.read(pid, pf)) != 0) {
+		return rc;
+	}
+	// Find out eid of the LeafNode entry that contains searchKey
+	if((rc = leaf.locate(searchKey, eid)) != 0) {
+		return rc;
+	}
+
+	// The leaf was successfully located using the given searchKey.
+	// Copy into the Cursor
+	cursor.pid = pid;
+	cursor.eid = eid;
+    return rc;
 }
 
 /*
@@ -260,7 +303,41 @@ RC BTreeIndex::locate(int searchKey, IndexCursor& cursor)
  */
 RC BTreeIndex::readForward(IndexCursor& cursor, int& key, RecordId& rid)
 {
-    return 0;
+	// Must have a valid cursor
+	if(cursor.pid <= 0)
+		return RC_INVALID_CURSOR;
+	RC rc = 0;
+
+	// Assume that we are already pointing at a LeafNode
+	BTLeafNode leaf;
+
+	// Extract the information from the cursor
+	PageId pid = cursor.pid;
+	int eid = cursor.eid;
+
+	// Read in leaf node
+	if( (rc = leaf.read(pid,pf)) != 0)
+		return rc;
+	// Read in Entry
+	if( (rc = leaf.readEntry(eid, key, rid) != 0))
+		return rc;
+	
+	// Only get the next one if there is another entry at the end
+	if(eid < leaf.getKeyCount() -1 ) {
+		eid++;
+		cursor.eid = eid;
+	}
+	// Otherwise we are already at the end so grab the next
+	// leaf-node's pid.
+	else {
+		pid = leaf.getNextNodePtr();
+		if( pid == -1)
+			return RC_END_OF_TREE;
+		cursor.pid = pid;
+		cursor.eid = 0;
+	}
+
+    return rc;
 }
 
 // Need to write/read data that is associated with the B tree
@@ -278,6 +355,7 @@ void BTreeIndex::printRecurse(PageId pid, int level)
 {
 	cout << "\n========================================\n";
 	cout << "Printing out level: " << level << endl;
+	cout << "Printing out page pid: " << pid << endl;
 	if (level > treeHeight)
 		return;
 	// Leaf node

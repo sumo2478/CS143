@@ -281,17 +281,39 @@ void test_index_insert()
 	RecordId rid;
 	rid.pid = 3;
 	rid.sid = 4;
+	int key;
+	RecordId rid2;
 
 	b.open("test", 'w');
 	
-	for (int i = 0; i < 15000; i++)
-	{
-		b.insert(i, rid);	
-	}
+	//for (int i = 0; i < 1000; i++)
+	//{
+	//	b.insert(i, rid);	
+	//}
 
 	b.printTree();
-	
-	
+	IndexCursor ic;
+	int searchKey = 945;
+	if(b.locate(searchKey, ic) != 0) {
+		cout << "Failed to find " << searchKey << endl;
+	}
+	else
+	{
+		cout << "Found search key " << searchKey << endl;
+		cout << "With PageId " << ic.pid << endl;
+		cout << "With Entry# " << ic.eid << endl;
+	}
+	RC rc = (b.readForward(ic, key, rid2));
+	if( rc == 0 ) {
+		cout << "With PageId " << ic.pid << endl;
+		cout << "With Entry# " << ic.eid << endl;
+		cout << "With rid2.pid = " << rid.pid << endl;
+		cout << "With rid2.sid = " << rid.sid << endl;
+	}
+	else if( rc == RC_END_OF_TREE)
+	{
+		cout << "END OF THE TREE" << endl;
+	}
 	b.close();
 }
 
