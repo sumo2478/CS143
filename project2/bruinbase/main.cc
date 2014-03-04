@@ -27,7 +27,6 @@ void test_nonleaf_insertion()
 	PageId pid3 = 199;
 	PageId pid4 = 81;
 	BTNonLeafNode b;
-	b.create();
 	
 	b.initializeRoot(pid1, 3, pid2);
 	b.insert(5, pid3);
@@ -198,7 +197,6 @@ void test_sibling_node()
 void test_nonleaf_insert_and_split()
 {
 	BTNonLeafNode b;
-	b.create();
 	b.initializeRoot(1, 1, 3);
 	PageId pid = 10;
 	int counter = 2;
@@ -209,7 +207,7 @@ void test_nonleaf_insert_and_split()
 	b.printBuffer();
 
 	BTNonLeafNode sibling;
-	sibling.create();
+
 	int sibling_key = -1;
 
 	b.insertAndSplit(127, 7777777, sibling, sibling_key);
@@ -300,7 +298,7 @@ void test_index_insert()
 void test_random()
 {
 	BTNonLeafNode b;
-	b.create();
+
 
 	for (int i = 0; i < 10; i++)
 	{
@@ -312,7 +310,7 @@ void test_random()
 	}
 	cout << "Key count: " << b.getKeyCount() << endl;
 	BTNonLeafNode sibling;
-	sibling.create();
+
 	int key = -1;
 	b.insertAndSplit(20, 1, sibling, key);
 

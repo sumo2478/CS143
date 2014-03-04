@@ -349,11 +349,12 @@ bool BTLeafNode::incrementKey()
 * Creates a new BTNonLeaf Node
 * @return 0 if successful.
 */
-RC BTNonLeafNode::create()
+BTNonLeafNode::BTNonLeafNode()
 {
 	memset(buffer, -1, PageFile::PAGE_SIZE);
 	m_keycount = 0;
 }
+
 
 
 /*

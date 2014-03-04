@@ -178,7 +178,6 @@ RC BTreeIndex::insert_recurse(int key, const RecordId& rid, int level, PageId cu
 		else if (rc == RC_NODE_FULL)
 		{
 			BTNonLeafNode sibling_node;
-			sibling_node.create();
 
 			int midKey = 0;
 		
@@ -214,7 +213,6 @@ RC BTreeIndex::createRoot(PageId pid1, int key, PageId pid2)
 {
 	BTNonLeafNode new_root;
 
-	new_root.create();
 	RC rc = new_root.initializeRoot(pid1, key, pid2);
 
 	// Update the new root pid
@@ -298,7 +296,7 @@ void BTreeIndex::printRecurse(PageId pid, int level)
 	else
 	{
 		BTNonLeafNode node;
-		node.create();
+		
 		node.read(pid, pf);
 		int key = -1;
 		for (int i = 0; i < node.getKeyCount(); i++)
