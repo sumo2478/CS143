@@ -406,32 +406,39 @@ void test_random()
 void test_function()
 {
 
-	test_nonleaf_insertion();
-	test_nonleaf_insert_and_split();
+	// test_nonleaf_insertion();
+	// test_nonleaf_insert_and_split();
 	
-	test_insertion();
+	// test_insertion();
 
-	test_substitute_insertion();
+	// test_substitute_insertion();
 
-	test_sibling_node();
+	// test_sibling_node();
 
-	test_insert_and_split();
+	// test_insert_and_split();
 
 	// test_index_insert();
 
-	test_locate_and_read_forward();
+	// test_locate_and_read_forward();
 
 	//test_random();
 
 	cout << "\nAll tests passed successfully!\n\n";
 }
 
+void test_load()
+{
+	BTreeIndex b;
+	b.open("collin.idx", 'w');
+	b.printTree();
+}
+
 int main()
 {
 	// run the SQL engine taking user commands from standard input (console).
-	// SqlEngine::run(stdin);
+	 SqlEngine::run(stdin);
 
-
-	test_function();
+	//test_load();
+	//test_function();
 	return 0;
 }

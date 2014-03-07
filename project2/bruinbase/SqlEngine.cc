@@ -13,6 +13,7 @@
 #include <sstream>
 #include "Bruinbase.h"
 #include "SqlEngine.h"
+#include "BTreeIndex.h"
 
 using namespace std;
 
@@ -133,9 +134,23 @@ RC SqlEngine::load(const string& table, const string& loadfile, bool index)
 {
   // TODO: Implement index part
 
+  RC rc = 0;
+
   // Open table for reading
   RecordFile record_file;
   record_file.open(table + ".tbl", 'w');
+
+  // If there is an index file then we must also open the index file
+  BTreeIndex b;
+  if (index)
+  {
+    rc = b.open(table + ".idx", 'w');
+    if (rc < 0)
+    {
+      b.close();
+      return rc;
+    }
+  }
 
   // Read in the load file
   ifstream infile;
@@ -156,9 +171,22 @@ RC SqlEngine::load(const string& table, const string& loadfile, bool index)
         RecordId rd = record_file.endRid();
 
         record_file.append(key, value, rd);
+
+        // If index is used insert it into the index
+        if (index)
+        {
+          rc = b.insert(key, rd);
+          if (rc < 0)
+          {
+            b.close();
+            return rc;
+          }
+        }
       }
     }
   }
+
+  b.close();
 
   return 0;
 }
