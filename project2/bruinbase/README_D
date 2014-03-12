@@ -14,7 +14,17 @@ it inside of the database. If the index flag is set to true then a B+ Tree Index
 and stored inside of a file titled <table_name>.idx. Then each tuple is inserted into the B+ tree
 index.
 
-select() - 
+select() - The select function takes in input an attribute, table name, and vector of 
+SelectConditions. Our function uses two additional vectors, one for holding the equal 
+conditions on the key and one for holding all the index conditions or other nonkey conditions. 
+We go through each condition and determine what type it is and push it into the correct 
+vector. We maintain a high and low search bounds such that we can search using the key 
+constraints extremely easily. Then if we see that we need to use the index, we go through 
+all the key '=' conditions and see if there are any violations. Next we start at the lowest 
+bound for the index and readForward. On each tuple, we compare each of the conditions in the 
+second vector. This part is extremely similar to the no_index_needed section as before. 
+
+Edited locate() and readForward() functions in BTreeIndex.cc
 
 Collin implemented the load functionality.
 Alex implemented the select() function. 
