@@ -61,6 +61,7 @@ RC BTreeIndex::close()
 	TreeInfo* t = (TreeInfo*) buffer;
 	t->treeHeight = treeHeight;
 	t->rootPid = rootPid;
+
 	pf.write(TREE_INFO_PAGE, buffer);
 
     RC rc = pf.close();
@@ -99,6 +100,7 @@ RC BTreeIndex::insert(int key, const RecordId& rid)
 			rc = createRoot(rootPid, new_key, new_pid);
 		}
 	}
+
 
     return rc;
 }
@@ -265,35 +267,36 @@ RC BTreeIndex::locate(int searchKey, IndexCursor& cursor)
 	nonleaf.initializeRoot(0, -1,-1);
 	
 	// Search through the tree until we reach the LeafNodes
-	for(int curHeight = 1; curHeight < treeHeight; curHeight++)
+	if(treeHeight != 1) {
+	for(int curHeight = 1; curHeight < treeHeight; ++curHeight)
 	{
 		// Read information in the NonLeafNode
-		if((rc = nonleaf.read(pid, pf)) != 0) {
+		if((rc = nonleaf.read(pid, pf)) < 0) {
 			return rc;
 		}
 		// Figure out where the leaf is located by traversing through
 		// the NonLeafNode to find the PageId
-		if((rc = nonleaf.locateChildPtr(searchKey, pid)) != 0) {
+		if((rc = nonleaf.locateChildPtr(searchKey, pid)) < 0) {
 			return rc;
 		}
+	}
 	}
 	// Now we are at the leaf level
 	// In the right page
 	BTLeafNode leaf;
 	// Read information in the LeafNode
-	if((rc = leaf.read(pid, pf)) != 0) {
+	if((rc = leaf.read(pid, pf)) < 0) {
 		return rc;
 	}
 	// Find out eid of the LeafNode entry that contains searchKey
-	if((rc = leaf.locate(searchKey, eid)) != 0) {
+	if((rc = leaf.locate(searchKey, cursor.eid)) < 0) {
 		return rc;
 	}
 
 	// The leaf was successfully located using the given searchKey.
 	// Copy into the Cursor
 	cursor.pid = pid;
-	cursor.eid = eid;
-    return rc;
+    return 0;
 }
 
 /*
@@ -319,28 +322,24 @@ RC BTreeIndex::readForward(IndexCursor& cursor, int& key, RecordId& rid)
 	int eid = cursor.eid;
 
 	// Read in leaf node
-	if( (rc = leaf.read(pid,pf)) != 0)
+	if( (rc = leaf.read(pid,pf)) < 0)
 		return rc;
-	// Read in Entry
-	if( (rc = leaf.readEntry(eid, key, rid) != 0))
-		return rc;
-	
-	// Only get the next one if there is another entry at the end
-	if(eid < leaf.getKeyCount() -1 ) {
-		eid++;
-		cursor.eid = eid;
-	}
-	// Otherwise we are already at the end so grab the next
-	// leaf-node's pid.
-	else {
-		pid = leaf.getNextNodePtr();
-		if( pid == -1)
-			return RC_END_OF_TREE;
-		cursor.pid = pid;
-		cursor.eid = 0;
-	}
 
-    return rc;
+	if(cursor.eid == leaf.getKeyCount() ) {
+		int nextPid = leaf.getNextNodePtr();
+		if(nextPid == 0) {
+			return RC_END_OF_TREE;
+		} else {
+			cursor.pid = nextPid;
+			cursor.eid = 0;
+			if((rc = leaf.read(cursor.pid,pf)) < 0)
+				return rc;
+		}
+	}
+	leaf.readEntry(cursor.eid, key, rid);
+	cursor.eid++;
+
+    return 0;
 }
 
 // Need to write/read data that is associated with the B tree
