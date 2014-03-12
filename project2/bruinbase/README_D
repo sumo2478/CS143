@@ -1,0 +1,20 @@
+CS143 -- Project 2d
+Implemented load() and select() for the SQLEngine
+
+Name: Collin Yen
+SID: 804034634
+Email: collinyen7@gmail.com
+
+Name: Alexander Guo
+SID: 104061305
+Email: aguo91@gmail.com
+
+load() - The load function takes in input from a properly formatted data file and stores
+it inside of the database. If the index flag is set to true then a B+ Tree Index will be created
+and stored inside of a file titled <table_name>.idx. Then each tuple is inserted into the B+ tree
+index.
+
+select() - 
+
+Collin implemented the load functionality.
+Alex implemented the select() function. 
